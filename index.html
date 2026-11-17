@@ -987,7 +987,7 @@
     });
     return {
       v: 2, tab: 'plan', day: 'today',
-      baskets: b, memos: memos, memoLog: [], shop: {}, shopItems: [], customMenus: []
+      baskets: b, memos: memos, memosAt: {}, memoLog: [], shop: {}, shopItems: [], customMenus: []
     };
   }
 
@@ -1104,6 +1104,12 @@
       });
     }
     if (Array.isArray(saved.memoLog)) base.memoLog = sanitizeMemoLog(saved.memoLog);
+    if (saved.memosAt && typeof saved.memosAt === 'object') {
+      BUCKETS.forEach(function (k) {
+        var v = saved.memosAt[k];
+        if (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) base.memosAt[k] = v;
+      });
+    }
     if (saved.shop && typeof saved.shop === 'object') {
       Object.keys(saved.shop).forEach(function (k) {
         var v = saved.shop[k];
@@ -1250,6 +1256,15 @@
   function dateLabel(ds) {
     var w = weekdayOf(ds);
     return ds + (w ? ' (' + w + ')' : '');
+  }
+
+  /* 이번 주 월요일 (주 단위 비교용) */
+  function weekStartKey() {
+    var t = new Date();
+    t = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    var wd = t.getDay();
+    t.setDate(t.getDate() - (wd === 0 ? 6 : wd - 1));
+    return dateKey(t);
   }
 
   function timeOf(iso) {
@@ -1429,7 +1444,8 @@
     lastMemoKey = key;
 
     var dk = dateKey();
-    $('memoHint').textContent = '오늘 ' + dateLabel(dk) + ' 기준 · 담은 메뉴 ' + arr.length + '개와 함께 기록돼요';
+    $('memoHint').textContent = '오늘 ' + dateLabel(dk) + ' 기준 · 담은 메뉴 ' + arr.length
+      + '개와 함께 기록돼요 (요일 칸 메모는 다음 주에 넘어가요)';
   }
 
   /* 담은 메뉴에 맞춰 ‘아이와 함께 먹는 팁’을 다시 그린다 */
@@ -1512,7 +1528,7 @@
       return;
     }
     body.innerHTML = list.map(memoLogItemHtml).join('')
-      + '<p class="logfoot">이 휴대폰·브라우저에만 저장돼요. 브라우저 저장 공간을 지우면 함께 사라집니다.</p>';
+      + '<p class="logfoot">요일 메모는 다음 주가 되면 자동으로 그 주의 날짜 기록으로 옮겨 담아요.<br>이 휴대폰·브라우저에만 저장되니 브라우저 저장 공간을 지우면 함께 사라집니다.</p>';
   }
 
   /* 지금 보고 있는 날(오늘)의 메모·담은 메뉴를 날짜 기록으로 남긴다 */
@@ -1558,6 +1574,26 @@
   function toggleMemoLog() {
     memoLogOpen = !memoLogOpen;
     renderMemoLog();
+  }
+
+  /* 지난 주에 쓰인 요일 메모는 잃지 않게 그 주 날짜의 기록으로 옮겨 둔다 */
+  function archiveStaleMemos() {
+    var monday = weekStartKey();
+    var changed = false;
+    DAY_KEYS.concat(['today']).forEach(function (k) {
+      var at = state.memosAt[k];
+      var memo = String(state.memos[k] || '').trim();
+      if (!at || !memo) return;
+      if (at >= monday) return;                     /* 이번 주에 쓴 메모는 그대로 */
+      var dup = state.memoLog.some(function (r) {
+        return r.date === at && String(r.memo || '').trim() === memo;
+      });
+      if (!dup) state.memoLog.push({ id: uid(), date: at, at: '', menus: [], memo: memo });
+      delete state.memosAt[k];
+      changed = true;
+    });
+    if (state.memoLog.length > 300) state.memoLog = state.memoLog.slice(-300);
+    if (changed) save();
   }
 
   /* ---------- render: 전체 메뉴 목록 ---------- */
@@ -2177,6 +2213,7 @@
     if (el && el.id === 'dayMemo') {
       var key = currentKey();
       state.memos[key] = el.value.slice(0, 300);
+      state.memosAt[key] = dateKey();
       save();
     }
   });
@@ -2212,6 +2249,7 @@
 
   /* ---------- boot ---------- */
   if (!storageWorks()) $('storageWarn').hidden = false;
+  archiveStaleMemos();
   render();
 })();
 </script>
