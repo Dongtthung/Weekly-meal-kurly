@@ -121,12 +121,58 @@
   .sbtn.ghost{background:#fff;border-color:var(--line);color:var(--sub)}
   .daytip{margin-top:11px;background:#FAF5FF;border:1px solid #F0E6FB;border-radius:12px;padding:10px 11px;font-size:12.5px;color:#544B63;line-height:1.62}
   .daytip b{display:block;margin-bottom:3px;font-size:11.5px;color:var(--lilac-deep)}
+  .daytip .tiplist{list-style:none;margin:0;padding:0}
+  .daytip .tiplist li{padding:7px 0;border-top:1px dashed #EBDFF7}
+  .daytip .tiplist li:first-child{border-top:0;padding-top:2px}
+  .daytip .tipmenu{display:block;font-size:11.5px;font-weight:800;color:#3E7A5F;margin-bottom:2px;letter-spacing:-.01em}
+  .daytip .tipmenu i{font-style:normal;color:#4F9B7E}
+  .daytip .tiptext{display:block}
+  .daytip .tipguide{display:block;margin-top:6px;font-size:11.5px;color:#8C84A0;line-height:1.55}
   .memobox{margin-top:10px}
   .memobox textarea{
     width:100%;border:1px solid var(--line);border-radius:12px;padding:9px 10px;min-height:44px;
     font-family:inherit;font-size:13px;line-height:1.55;color:var(--ink);background:#FFFDF8;resize:vertical;
   }
   .memobox textarea::placeholder{color:#B5AEC0}
+  .memorow{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .memolog-btn{
+    flex:0 0 auto;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    border-radius:10px;padding:8px 11px;border:1px solid #CBE3D6;background:#F1F9F4;color:#2F7A5D;
+  }
+  .memolog-btn:active{transform:scale(.98)}
+  .memohint{flex:1;min-width:130px;font-size:10.5px;color:#9C95A8;line-height:1.5}
+
+  /* 날짜별 메모 기록 */
+  .memolog{margin-top:9px;border:1px solid var(--line);border-radius:12px;background:#FFFDF8;overflow:hidden}
+  .memolog-head{
+    display:flex;align-items:center;gap:7px;width:100%;font-family:inherit;cursor:pointer;text-align:left;
+    border:0;background:none;padding:10px 11px;font-size:12px;font-weight:800;color:#544B63;line-height:1.4;
+  }
+  .memolog-head .cnt{
+    margin-left:auto;flex:0 0 auto;font-size:10.5px;font-weight:800;color:var(--lilac-deep);
+    background:var(--lilac-100);border-radius:999px;padding:2px 7px;
+  }
+  .memolog-head .chev{flex:0 0 auto;font-size:12px;line-height:1;color:#B7A7D2;transition:transform .18s ease}
+  .memolog.open .memolog-head .chev{transform:rotate(180deg)}
+  .memolog-body{padding:2px 11px 11px;border-top:1px solid #F6F2EA}
+  .memolog-body[hidden]{display:none}
+  .logitem{padding:9px 0;border-top:1px dashed #EFEAE1}
+  .logitem:first-child{border-top:0;padding-top:8px}
+  .logtop{display:flex;align-items:center;gap:6px}
+  .logdate{flex:1;min-width:0;font-size:11.5px;font-weight:800;color:var(--lilac-deep);letter-spacing:.01em}
+  .logdate i{font-style:normal;font-weight:700;color:#A79FBB;margin-left:3px}
+  .logdel{
+    flex:0 0 auto;font-family:inherit;width:24px;height:24px;border-radius:7px;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:#B0A8BB;font-size:13px;line-height:1;
+  }
+  .logmenus{margin-top:4px;font-size:11.5px;color:#6E6678;line-height:1.55;overflow-wrap:anywhere}
+  .logmenus.none{color:#A9A2B4}
+  .logmenu{white-space:normal}
+  .logmenu.done{color:#4F9B7E;font-weight:700}
+  .logmemo{margin:4px 0 0;font-size:12.5px;line-height:1.6;color:#4B4459;overflow-wrap:anywhere;white-space:pre-wrap}
+  .logmemo .none{color:#A9A2B4}
+  .logempty{padding:12px 0 2px;font-size:11.5px;color:#9C95A8;line-height:1.6}
+  .logfoot{margin:8px 0 0;font-size:10.5px;color:#A9A2B4;line-height:1.55}
 
   /* ---------- 전체 메뉴 목록 ---------- */
   .mtools{margin:10px 14px 0}
@@ -465,6 +511,18 @@
       <div class="memobox">
         <textarea id="dayMemo" data-memo maxlength="300" placeholder="메모 (예: 무를 잘 먹음 · 다음엔 간장 조금만)" aria-label="이 날 메모"></textarea>
       </div>
+      <div class="memorow">
+        <button class="memolog-btn" type="button" data-action="save-memo-log">📌 메모 기록 남기기</button>
+        <span class="memohint" id="memoHint"></span>
+      </div>
+      <section class="memolog" id="memoLog" aria-label="지난 메모 기록">
+        <button class="memolog-head" type="button" id="memoLogHead" data-action="toggle-memolog" aria-expanded="false" aria-controls="memoLogBody">
+          <span>📚 지난 메모 기록 (날짜별)</span>
+          <span class="cnt" id="memoLogCount">0건</span>
+          <span class="chev" aria-hidden="true">⌄</span>
+        </button>
+        <div class="memolog-body" id="memoLogBody" hidden></div>
+      </section>
     </section>
 
     <div class="section-title">
@@ -487,7 +545,8 @@
     <p class="foot">
       목록에서 <b>+ 담기</b>를 누르면 위 ‘내가 담은 식단’의 선택한 날에 담겨요. 다 먹은 메뉴는 <b>✓</b>로 완료 체크!<br>
       어른용으로는 쌈장·김치·고춧가루만 곁들이면 따로 두 번 요리하지 않아도 돼요.<br>
-      담은 메뉴·먹음 체크·메모는 이 휴대폰에만 저장됩니다.
+      담은 메뉴·먹음 체크·메모는 이 휴대폰에만 저장됩니다.<br>
+      메모는 <b>📌 메모 기록 남기기</b>를 누르면 그날의 날짜·메뉴와 함께 <b>지난 메모 기록</b>에 남아, 다음 주가 되어도 펼쳐 볼 수 있어요.
       <br>
       <span id="storageWarn" hidden style="color:#B4864F;font-weight:700">이 브라우저는 저장을 막아 두었어요. 화면을 닫으면 담은 메뉴와 체크가 사라지니 크롬·사파리에서 열어 주세요.</span>
       <br>
@@ -928,7 +987,7 @@
     });
     return {
       v: 2, tab: 'plan', day: 'today',
-      baskets: b, memos: memos, shop: {}, shopItems: [], customMenus: []
+      baskets: b, memos: memos, memoLog: [], shop: {}, shopItems: [], customMenus: []
     };
   }
 
@@ -954,6 +1013,36 @@
       out.push({ name: name, done: !!(m && m.done) });
     });
     return out.slice(0, 30);
+  }
+
+  /* 날짜별 메모 기록 정리 — 날짜(YYYY-MM-DD) 없는 항목·빈 기록은 버리고 최근 300건까지 */
+  function sanitizeMemoLog(arr) {
+    var out = [];
+    if (!Array.isArray(arr)) return out;
+    arr.forEach(function (r) {
+      if (!r || typeof r !== 'object') return;
+      var date = String(r.date || '').trim();
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+      var memo = typeof r.memo === 'string' ? r.memo.slice(0, 300) : '';
+      var menus = [];
+      if (Array.isArray(r.menus)) {
+        r.menus.forEach(function (m) {
+          var n = cleanName(m && m.name !== undefined ? m.name : m);
+          if (!n) return;
+          menus.push({ name: n, done: !!(m && m.done) });
+        });
+      }
+      menus = menus.slice(0, 30);
+      if (!memo.trim() && !menus.length) return;
+      out.push({
+        id: String((r && r.id) || uid()),
+        date: date,
+        at: typeof r.at === 'string' ? r.at : '',
+        menus: menus,
+        memo: memo
+      });
+    });
+    return out.slice(-300);
   }
 
   function migrateOld(base) {
@@ -1014,6 +1103,7 @@
         if (typeof saved.memos[k] === 'string') base.memos[k] = saved.memos[k].slice(0, 300);
       });
     }
+    if (Array.isArray(saved.memoLog)) base.memoLog = sanitizeMemoLog(saved.memoLog);
     if (saved.shop && typeof saved.shop === 'object') {
       Object.keys(saved.shop).forEach(function (k) {
         var v = saved.shop[k];
@@ -1048,6 +1138,7 @@
   var confirmCb = null;
   var toastTimer = null;
   var lastMemoKey = null;
+  var memoLogOpen = false;
 
   function save() {
     try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
@@ -1136,6 +1227,36 @@
     var keys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     var k = keys[new Date().getDay()];
     return DAY_KEYS.indexOf(k) !== -1 ? k : null;
+  }
+
+  /* ---------- 날짜 도우미 (날짜별 메모 기록) ---------- */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function dateKey(d) {
+    var t = d || new Date();
+    return t.getFullYear() + '-' + pad2(t.getMonth() + 1) + '-' + pad2(t.getDate());
+  }
+
+  var WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function weekdayOf(ds) {
+    var p = String(ds || '').split('-');
+    if (p.length !== 3) return '';
+    var dt = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    if (isNaN(dt.getTime())) return '';
+    return WEEKDAY_KO[dt.getDay()];
+  }
+
+  function dateLabel(ds) {
+    var w = weekdayOf(ds);
+    return ds + (w ? ' (' + w + ')' : '');
+  }
+
+  function timeOf(iso) {
+    if (!iso) return '';
+    var t = new Date(iso);
+    if (isNaN(t.getTime())) return '';
+    return pad2(t.getHours()) + ':' + pad2(t.getMinutes());
   }
 
   /* ‘오늘’ 알약은 평일이면 그 요일 바구니와 같은 곳을 본다 */
@@ -1301,20 +1422,142 @@
       empty.textContent = '';
     }
 
-    var d = state.day === 'today' ? (todayKey() || null) : state.day;
-    var tip = d ? dayInfo(d) : null;
-    var tipBox = $('dayTip');
-    if (tip) {
-      tipBox.hidden = false;
-      tipBox.innerHTML = '<b>🧸 ' + esc(tip.label) + ' 아이와 함께 먹는 팁</b>' + esc(tip.tip);
-    } else {
-      tipBox.hidden = true;
-      tipBox.innerHTML = '';
-    }
+    renderDayTip(arr);
 
     var memo = $('dayMemo');
     if (lastMemoKey !== key || document.activeElement !== memo) memo.value = state.memos[key] || '';
     lastMemoKey = key;
+
+    var dk = dateKey();
+    $('memoHint').textContent = '오늘 ' + dateLabel(dk) + ' 기준 · 담은 메뉴 ' + arr.length + '개와 함께 기록돼요';
+  }
+
+  /* 담은 메뉴에 맞춰 ‘아이와 함께 먹는 팁’을 다시 그린다 */
+  function renderDayTip(arr) {
+    var tipBox = $('dayTip');
+    var title = '<b>🧸 ' + esc(basketTitle()) + ' 아이와 함께 먹는 팁</b>';
+    var tips = [], missing = [];
+    (arr || []).forEach(function (m) {
+      var r = recipeOf(m.name);
+      if (r && r.baby) tips.push({ name: m.name, text: r.baby, done: !!m.done });
+      else missing.push(m.name);
+    });
+
+    tipBox.hidden = false;
+    if (!tips.length) {
+      tipBox.innerHTML = title
+        + '<span class="tipguide">담은 메뉴에 맞는 아이 팁이 여기에 표시돼요.'
+        + (missing.length
+            ? ' 지금 담은 ' + missing.length + '개 메뉴는 저장된 아기 팁이 아직 없어요.'
+            : ' 아래 전체 메뉴 목록에서 국·반찬을 하나 담아 보세요.')
+        + '</span>';
+      return;
+    }
+
+    tipBox.innerHTML = title
+      + '<ul class="tiplist">' + tips.map(function (t) {
+          return '<li><span class="tipmenu">' + esc(t.name) + (t.done ? ' <i>✓ 먹음</i>' : '') + '</span>'
+            + '<span class="tiptext">' + esc(t.text) + '</span></li>';
+        }).join('') + '</ul>'
+      + (missing.length
+          ? '<span class="tipguide">' + esc(missing.join(' · ')) + ' — 저장된 아기 팁이 없어요.</span>'
+          : '');
+  }
+
+  /* ---------- 날짜별 메모 기록 ---------- */
+  function memoLogList() {
+    return (state.memoLog || []).slice().sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+      var aa = a.at || '', bb = b.at || '';
+      if (aa !== bb) return aa < bb ? 1 : -1;
+      return 0;
+    });
+  }
+
+  function memoLogItemHtml(r) {
+    var when = dateLabel(r.date);
+    var time = timeOf(r.at);
+    var menus = (r.menus || []).map(function (m) {
+      return '<span class="logmenu' + (m.done ? ' done' : '') + '">' + esc(m.name)
+        + (m.done ? ' ✓' : '') + '</span>';
+    }).join(' · ');
+    var memoHtml = r.memo && String(r.memo).trim()
+      ? esc(r.memo)
+      : '<span class="none">메모 없이 메뉴만 기록</span>';
+    return '<article class="logitem" data-id="' + esc(r.id) + '">'
+      + '<div class="logtop">'
+      +   '<span class="logdate">' + esc(when) + (time ? '<i>' + esc(time) + '</i>' : '') + '</span>'
+      +   '<button class="logdel" type="button" data-action="del-memo-log" data-id="' + esc(r.id) + '"'
+      +     ' aria-label="' + esc(when + ' 메모 기록 지우기') + '">×</button>'
+      + '</div>'
+      + '<div class="logmenus' + (menus ? '' : ' none') + '">🍽 ' + (menus || '담은 메뉴 없음') + '</div>'
+      + '<p class="logmemo">' + memoHtml + '</p>'
+      + '</article>';
+  }
+
+  function renderMemoLog() {
+    var list = memoLogList();
+    var cnt = $('memoLogCount');
+    if (cnt) cnt.textContent = list.length + '건';
+    var sec = $('memoLog');
+    if (sec) sec.classList.toggle('open', memoLogOpen);
+    var head = $('memoLogHead');
+    if (head) head.setAttribute('aria-expanded', memoLogOpen ? 'true' : 'false');
+    var body = $('memoLogBody');
+    if (!body) return;
+    body.hidden = !memoLogOpen;
+    if (!memoLogOpen) return;
+    if (!list.length) {
+      body.innerHTML = '<p class="logempty">아직 남긴 기록이 없어요.<br>메모를 쓰고 <b>📌 메모 기록 남기기</b>를 누르면 날짜별로 차곡차곡 쌓여요.</p>';
+      return;
+    }
+    body.innerHTML = list.map(memoLogItemHtml).join('')
+      + '<p class="logfoot">이 휴대폰·브라우저에만 저장돼요. 브라우저 저장 공간을 지우면 함께 사라집니다.</p>';
+  }
+
+  /* 지금 보고 있는 날(오늘)의 메모·담은 메뉴를 날짜 기록으로 남긴다 */
+  function saveMemoLog() {
+    var key = currentKey();
+    var arr = state.baskets[key] || [];
+    var memoEl = $('dayMemo');
+    var memo = (memoEl ? String(memoEl.value || '') : String(state.memos[key] || '')).slice(0, 300).trim();
+    var menus = arr.map(function (m) { return { name: m.name, done: !!m.done }; });
+    if (!memo && !menus.length) {
+      toast('남길 메모나 담은 메뉴가 없어요');
+      return;
+    }
+    var now = new Date();
+    var dk = dateKey(now);
+    var rec = { id: uid(), date: dk, at: now.toISOString(), menus: menus, memo: memo };
+    state.memoLog.push(rec);
+    if (state.memoLog.length > 300) state.memoLog = state.memoLog.slice(-300);
+    state.memos[key] = memo;
+    memoLogOpen = true;
+    save();
+    render();
+    toast(dateLabel(dk) + ' 메모를 기록에 남겼어요 · 총 ' + state.memoLog.length + '건');
+  }
+
+  function delMemoLog(id) {
+    var rec = null;
+    (state.memoLog || []).forEach(function (r) { if (r.id === id) rec = r; });
+    if (!rec) return;
+    askConfirm(
+      '이 메모 기록을 지울까요?',
+      dateLabel(rec.date) + ' 기록과 그날 담은 메뉴 ' + (rec.menus || []).length + '개가 함께 지워져요.',
+      '지우기',
+      function () {
+        state.memoLog = (state.memoLog || []).filter(function (r) { return r.id !== id; });
+        save();
+        render();
+        toast('메모 기록을 지웠어요');
+      }
+    );
+  }
+
+  function toggleMemoLog() {
+    memoLogOpen = !memoLogOpen;
+    renderMemoLog();
   }
 
   /* ---------- render: 전체 메뉴 목록 ---------- */
@@ -1516,6 +1759,7 @@
     renderHead();
     renderPills();
     renderBasket();
+    renderMemoLog();
     renderMenuCats();
     renderMenuList();
     renderShop();
@@ -1860,6 +2104,9 @@
     if (action === 'tab') { setTab(el.getAttribute('data-tab')); return; }
     if (action === 'pick-day') { pickDay(el.getAttribute('data-day-key')); return; }
     if (action === 'toggle-eaten') { toggleEaten(Number(el.getAttribute('data-idx'))); return; }
+    if (action === 'save-memo-log') { saveMemoLog(); return; }
+    if (action === 'toggle-memolog') { toggleMemoLog(); return; }
+    if (action === 'del-memo-log') { delMemoLog(el.getAttribute('data-id')); return; }
     if (action === 'remove-menu') { removeMenu(Number(el.getAttribute('data-idx'))); return; }
     if (action === 'add-menu') { addMenu(el.getAttribute('data-menu')); return; }
     if (action === 'load-plan') { loadRecommended(); return; }
@@ -1889,11 +2136,12 @@
     if (action === 'reset') {
       askConfirm(
         '처음 상태로 되돌릴까요?',
-        '담은 메뉴, 먹음 체크, 메모, 직접 추가한 메뉴·재료, 장보기 체크가 모두 지워져요.',
+        '담은 메뉴, 먹음 체크, 메모, 날짜별 메모 기록, 직접 추가한 메뉴·재료, 장보기 체크가 모두 지워져요.',
         '초기화',
         function () {
           state = defaults();
           openRecipes = {};
+          memoLogOpen = false;
           try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
           $('copyFallback').hidden = true;
           search = '';
