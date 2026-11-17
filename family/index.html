@@ -131,6 +131,18 @@
   }
   .clockchip{font-weight:900;color:var(--lilac-deep);font-variant-numeric:tabular-nums;letter-spacing:.01em}
   .wpil{color:#8A5A16;background:linear-gradient(135deg,#FFF8E6 0%,#FFFDF6 100%);border-color:#F7E4BC}
+  /* 헤더 날씨 알약 — 누르면 일주일 날씨 모달 */
+  .wpil-btn{
+    cursor:pointer;font-family:inherit;line-height:1;
+    transition:transform .13s ease, box-shadow .13s ease, background .13s ease, border-color .13s ease;
+  }
+  .wpil-btn::after{content:"▾";font-size:9px;font-weight:900;opacity:.5;margin-left:1px}
+  .wpil-btn:hover{
+    background:linear-gradient(135deg,#FFF0CE 0%,#FFFDF7 100%);border-color:#EFD49B;
+    box-shadow:0 4px 14px rgba(224,154,85,.28);
+  }
+  .wpil-btn:active{transform:scale(.965);box-shadow:0 1px 5px rgba(224,154,85,.22)}
+  .wpil-btn:focus-visible{outline:3px solid rgba(224,154,85,.42);outline-offset:2px}
   .icon-btn{
     grid-area:action;flex:0 0 auto;width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;
     border-radius:15px;border:1px solid rgba(255,255,255,.95);
@@ -179,6 +191,15 @@
   .now-chip > span:last-child{min-width:0;overflow:hidden}
   .now-chip .avatar{flex:0 0 auto}
   .now-chip.is-empty .what{color:var(--mute);font-weight:700}
+  .now-chip .loc-thumb{width:18px;height:18px;border-radius:5px;vertical-align:-4px;margin-right:3px}
+
+  /* 위치 사진 아이콘 (사진을 넣은 위치) */
+  .loc-thumb{
+    flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;
+    border-radius:7px;overflow:hidden;background:#fff;border:1px solid #FFD9E8;
+    box-shadow:0 1px 4px rgba(206,74,131,.12);vertical-align:-3px;
+  }
+  .loc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 
   /* ============ sections ============ */
   .section{margin-top:22px;position:relative}
@@ -195,7 +216,7 @@
     #secFamily{order:1}
     #secEvents{order:2}
     #secMeal{order:3}
-    #secWeather{order:4}
+    #secPhoto{order:4}
     #secTodo{order:5}
     #secMemo{order:6}
   }
@@ -284,6 +305,10 @@
   .preset.is-on{background:var(--tone-100);border-color:var(--tone);color:var(--tone-ink);box-shadow:0 0 0 2px rgba(255,255,255,.85) inset,0 2px 8px rgba(206,74,131,.12)}
   .preset.custom{border-style:dashed;color:var(--sub)}
   .preset.custom.is-on{border-style:solid}
+  .preset .loc-thumb{width:20px;height:20px;border-radius:6px;margin-right:1px;vertical-align:-5px}
+  .preset.is-on .loc-thumb{border-color:var(--tone);box-shadow:0 0 0 1.5px rgba(255,255,255,.9),0 1px 4px rgba(206,74,131,.16)}
+  .mcard-sub .loc-thumb{width:18px;height:18px;border-radius:6px;vertical-align:-4px;margin-right:2px}
+  .mcard-sub .st{display:inline-flex;align-items:center;gap:1px;min-width:0}
 
   .custom-form{display:flex;gap:6px;margin-top:8px;position:relative;z-index:1}
   .custom-form[hidden]{display:none}
@@ -470,6 +495,75 @@
   .wattr{margin-top:8px;font-size:9.5px;color:#C0A9B6;line-height:1.5}
   .wattr a{color:#AE90A2;text-decoration:none;border-bottom:1px dotted #E4D2DC}
 
+  /* ============ 일주일 날씨 모달 ============ */
+  .weather-sheet{max-width:520px}
+  .ws-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .ws-head h3{font-size:16.5px;letter-spacing:-.02em}
+  .ws-sub{font-size:11px;color:var(--sub);font-weight:800;margin-top:3px}
+  .ws-close{
+    flex:0 0 auto;width:42px;height:42px;border-radius:13px;border:1px solid #F6DAE8;background:#fff;
+    color:var(--sub);font-size:14px;line-height:1;font-weight:900;box-shadow:0 2px 8px rgba(206,74,131,.06);
+  }
+  .ws-close:active{background:var(--pink-mist)}
+  .weather-sheet .wcard{margin-top:11px;padding:13px}
+
+  /* ============ 우리 가족 사진 액자 ============ */
+  .pframe-card{padding:13px;overflow:hidden}
+  .pframe-card::after{
+    content:"";position:absolute;right:-20px;top:-22px;width:92px;height:92px;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle at 40% 40%,rgba(255,205,228,.55) 0%,rgba(255,205,228,0) 72%);
+  }
+  .pframe{position:relative;z-index:1}
+  .pframe-mat{
+    position:relative;border-radius:14px;padding:7px;
+    background:linear-gradient(160deg,#FFFFFF 0%,#FFFBFD 62%,#FFF6FA 100%);
+    border:1px solid #FBE1ED;
+    box-shadow:0 7px 18px rgba(206,74,131,.13), inset 0 0 0 1px rgba(255,255,255,.9);
+    transform:rotate(-.5deg);transition:transform .22s ease;
+  }
+  .pframe-mat:hover{transform:rotate(0deg)}
+  .pframe-mat::before,.pframe-mat::after{
+    content:"";position:absolute;top:-6px;width:42px;height:14px;border-radius:3px;pointer-events:none;z-index:2;
+    background:linear-gradient(135deg,rgba(255,214,232,.92) 0%,rgba(255,186,218,.78) 100%);
+    box-shadow:0 1px 3px rgba(206,74,131,.14);
+  }
+  .pframe-mat::before{left:9px;transform:rotate(-7deg)}
+  .pframe-mat::after{right:9px;transform:rotate(6deg)}
+  .pframe-shot{
+    position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
+    width:100%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;
+    background:radial-gradient(120% 100% at 50% 0%,#FFF3FA 0%,#F8EEFF 55%,#FFF8F0 100%);
+    border:1px solid #FBE1ED;cursor:pointer;
+  }
+  .pframe-shot img{width:100%;height:100%;object-fit:cover;display:block}
+  .pframe-shot.is-empty{border-style:dashed;border-color:#F5C9DE;padding:10px;text-align:center}
+  .pframe-shot.is-empty::before{
+    content:"";position:absolute;inset:5px;border-radius:8px;border:1px solid rgba(255,255,255,.85);pointer-events:none;
+  }
+  .pf-fairy{width:52px;height:52px;opacity:.95;filter:drop-shadow(0 4px 10px rgba(206,74,131,.16))}
+  .pframe-shot.is-empty strong{font-size:12.5px;font-weight:900;color:#8A5A78;letter-spacing:-.02em}
+  .pframe-shot.is-empty .pf-sub{font-size:10.5px;color:#AC8FA0;font-weight:800;line-height:1.4}
+  .pframe-shot.is-empty .pf-emoji{position:absolute;right:9px;bottom:7px;font-size:15px;opacity:.5}
+  .pframe-cap-row{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:9px;padding:0 36px}
+  .pframe-cap{
+    font-size:12.5px;font-weight:900;color:var(--lilac-deep);letter-spacing:-.01em;line-height:1.35;
+    text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%;
+  }
+  .pframe-cap.is-empty{color:var(--mute);font-weight:800}
+  .pframe-cap-row .cap-edit{
+    flex:0 0 auto;position:absolute;right:0;top:50%;transform:translateY(-50%);
+    width:34px;height:34px;border-radius:11px;border:1px solid #F8DCE9;background:#fff;
+    font-size:12px;line-height:1;padding:0;box-shadow:0 1px 5px rgba(206,74,131,.06);
+  }
+  .pframe-cap-row .cap-edit:active{background:var(--pink-mist)}
+  .pframe-form{display:flex;gap:6px;margin-top:7px}
+  .pframe-form[hidden]{display:none}
+  .pframe-form .input{height:42px;font-size:14px;border-radius:12px}
+  .pframe-form .btn{flex:0 0 auto;padding:0 13px;min-height:42px;border-radius:12px;font-size:12.5px}
+  .pframe-actions{display:flex;gap:6px;margin-top:9px}
+  .pframe-actions .btn{flex:1 1 0;min-height:42px;font-size:12px;border-radius:12px;padding:0 8px}
+  .pframe-actions .btn[hidden]{display:none}
+
   /* ============ todo & memo ============ */
   .todo-card{padding:6px 12px 12px}
   .todo-list{display:flex;flex-direction:column}
@@ -567,6 +661,27 @@
   .photo-row{display:flex;align-items:center;gap:12px}
   .photo-row .avatar{width:64px;height:64px}
   .photo-row .pbtns{display:flex;flex-wrap:wrap;gap:6px}
+
+  /* 가족 정보 시트 — 위치 아이콘 사진 */
+  .loc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px}
+  .loc-item{
+    display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:12px;
+    border:1px solid #F8DCE9;background:#fff;box-shadow:0 1px 5px rgba(206,74,131,.04);min-width:0;
+  }
+  .loc-item .lo-ic{
+    flex:0 0 auto;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    overflow:hidden;background:linear-gradient(160deg,#FFF4FA 0%,#FFEAF5 100%);
+    border:1px solid #FFD9E8;font-size:15px;line-height:1;
+  }
+  .loc-item .lo-ic img{width:100%;height:100%;object-fit:cover;display:block}
+  .loc-item .lo-nm{flex:1 1 auto;min-width:0;font-size:11px;font-weight:900;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .loc-item .lo-b{
+    flex:0 0 auto;width:30px;height:30px;border-radius:9px;border:1px solid #F6DAE8;background:#FFF8FC;
+    color:var(--sub);font-size:12px;line-height:1;padding:0;
+  }
+  .loc-item .lo-b:active{background:var(--pink-mist)}
+  .loc-item .lo-b[disabled]{opacity:.32}
+  .loc-tip{font-size:10.5px;color:var(--mute);line-height:1.45;margin-top:6px}
 
   .modal-body .box{
     background:#fff;border:1px solid #F8DFEB;border-radius:16px;padding:12px;margin-top:11px;
@@ -861,7 +976,7 @@
     </div>
 
     <div class="head-chips">
-      <span class="wpil" id="headWeather">🌤️ 날씨 불러오는 중</span>
+      <button type="button" class="wpil wpil-btn" id="headWeather" aria-haspopup="dialog" aria-controls="weatherSheet" title="이번 주 날씨 자세히 보기">🌤️ 날씨 불러오는 중</button>
       <span class="datechip" id="todayLine">불러오는 중…</span>
       <span class="clockchip" aria-label="지금 시각"><span id="clockLine">--:--</span></span>
       <span class="badge mode-local" id="syncBadge">🟡 로컬 미리보기 모드</span>
@@ -974,13 +1089,13 @@
 
     <div class="col">
 
-    <!-- 날씨 -->
-    <section class="section" id="secWeather">
+    <!-- 우리 가족 사진 액자 -->
+    <section class="section" id="secPhoto">
       <div class="section-title">
-        <h2>🌤️ 우리 동네 날씨 · 나들이</h2>
-        <span class="right">홍농읍 기준</span>
+        <h2>🖼️ 우리 가족 사진</h2>
+        <span class="right" id="photoFrameMeta">한 장 걸어 두세요</span>
       </div>
-      <div class="card wcard" id="weatherCard"></div>
+      <div class="card pframe-card" id="photoFrameCard"></div>
     </section>
 
     <!-- 식단 -->
@@ -1047,6 +1162,12 @@
       <label for="msBirth">생일 (선택)</label>
       <input class="input" id="msBirth" type="date">
       <p class="hint">넣어 두면 만 나이와 생일 D-day를 자동으로 세어 드려요.</p>
+    </div>
+
+    <div class="field">
+      <label>위치 아이콘 사진 (선택)</label>
+      <div class="loc-grid" id="msLocGrid" role="group" aria-label="위치별 아이콘 사진"></div>
+      <p class="loc-tip">📷 위치마다 사진을 넣으면 카드 위치 버튼·오늘 위치·상단 요약에 사진으로 보여요. ↺ 를 누르면 기본 이모지로 돌아가요.</p>
     </div>
 
     <div class="sheet-actions">
@@ -1133,7 +1254,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
     <div class="box">
       <h4>🔒 사진과 개인정보</h4>
-      <p>올린 사진은 폰 안에서 256×256으로 줄여 저장해요. 공개 주소의 페이지 코드에는 사진·일정·위치가 들어가지 않고, 기기 저장소(또는 로그인한 Supabase)에만 남아요.</p>
+      <p>올린 사진은 폰 안에서 먼저 줄여 저장해요 — 프로필 256×256, 위치 아이콘 128×128, 가족 사진 액자 최대 960px(WebP). 공개 주소의 페이지 코드에는 사진·일정·위치가 들어가지 않고, 기기 저장소(또는 로그인한 Supabase)에만 남아요.</p>
     </div>
 
     <div class="sheet-actions">
@@ -1144,6 +1265,23 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="photoInput" accept="image/*" aria-label="프로필 사진 선택" hidden>
+<input type="file" id="locIconInput" accept="image/*" aria-label="위치 아이콘 사진 선택" hidden>
+<input type="file" id="frameInput" accept="image/*" aria-label="가족 사진 선택" hidden>
+
+<!-- ================= 일주일 날씨 모달 ================= -->
+<div class="overlay" id="weatherSheet" hidden>
+  <div class="sheet weather-sheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle">
+    <div class="sheet-grip"></div>
+    <div class="ws-head">
+      <div>
+        <h3 id="wsTitle">🌦️ 일주일 날씨 · 홍농읍</h3>
+        <p class="ws-sub" id="wsSub">11/17 ~ 11/22 예보 · AirKorea 미세먼지</p>
+      </div>
+      <button type="button" class="ws-close" id="wsClose" aria-label="날씨 닫기">✕</button>
+    </div>
+    <div class="card wcard" id="weatherCard"></div>
+  </div>
+</div>
 
 <noscript>
   <p style="padding:20px;text-align:center;font-size:14px">이 대시보드는 자바스크립트가 필요해요. 브라우저 설정에서 스크립트를 켜 주세요.</p>
@@ -1169,15 +1307,64 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      2. 기본 데이터
      ===================================================================== */
   const PRESETS = ['🏢 회사', '🏠 집', '🏫 어린이집', '🚗 외출', '🏥 병원', '✈️ 여행'];
+  const LOC_ICON_SIZE = 128;      // 위치 아이콘 사진 (128×128 WebP)
+  const FRAME_MAX = 960;          // 가족 사진 액자 (최대 960px WebP)
+  const DEFAULT_CAPTION = '우리 가족 행복하게 🌸';
+
+  /* '🏢 회사' → 이모지 / 이름 */
+  function presetEmoji(p) {
+    const s = String(p || '').trim();
+    const i = s.indexOf(' ');
+    return i < 0 ? s : s.slice(0, i);
+  }
+  function presetName(p) {
+    const s = String(p || '').trim();
+    const i = s.indexOf(' ');
+    return i < 0 ? s : s.slice(i + 1).trim();
+  }
+  /* 상태 글자가 기본 위치(프리셋) 중 하나면 그 이름을, 아니면 '' */
+  function locKeyOf(label) {
+    const s = String(label || '').trim();
+    for (let i = 0; i < PRESETS.length; i++) {
+      if (PRESETS[i] === s) return presetName(PRESETS[i]);
+    }
+    return '';
+  }
+  function locPhotoOf(m, label) {
+    if (!m || !m.locIcons) return '';
+    const k = locKeyOf(label);
+    return k && m.locIcons[k] ? m.locIcons[k] : '';
+  }
+  function locThumbHtml(src, size) {
+    if (!src) return '';
+    const s = size || 20;
+    return '<span class="loc-thumb" style="width:' + s + 'px;height:' + s + 'px"><img src="' + esc(src) + '" alt="" loading="lazy"></span>';
+  }
+  /* 위치 이름 (사진이 있으면 사진 + 이름, 없으면 원래 이모지+이름) */
+  function locLabelHtml(m, label, size) {
+    const src = locPhotoOf(m, label);
+    if (!src) return esc(label);
+    return locThumbHtml(src, size || 18) + esc(presetName(label) || label);
+  }
+  function normalizeLocIcons(raw) {
+    const out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    PRESETS.forEach(function (p) {
+      const k = presetName(p);
+      const v = raw[k];
+      if (typeof v === 'string' && v.indexOf('data:image/') === 0) out[k] = v;
+    });
+    return out;
+  }
 
   function defaultState() {
     return {
       version: 1,
       updatedAt: 0,
       family: [
-        { id: 'dad', name: '정인', nick: '아빠', role: '아빠', tone: 'blue', emoji: '👨', photo: '', birth: '', status: null, schedules: [] },
-        { id: 'mom', name: '엄마', nick: '', role: '엄마', tone: 'rose', emoji: '👩', photo: '', birth: '', status: null, schedules: [] },
-        { id: 'kid', name: '딸', nick: '', role: '딸', tone: 'butter', emoji: '👧', photo: '', birth: '2023-12-07', status: null, schedules: [] }
+        { id: 'dad', name: '정인', nick: '아빠', role: '아빠', tone: 'blue', emoji: '👨', photo: '', birth: '', status: null, schedules: [], locIcons: {} },
+        { id: 'mom', name: '엄마', nick: '', role: '엄마', tone: 'rose', emoji: '👩', photo: '', birth: '', status: null, schedules: [], locIcons: {} },
+        { id: 'kid', name: '딸', nick: '', role: '딸', tone: 'butter', emoji: '👧', photo: '', birth: '2023-12-07', status: null, schedules: [], locIcons: {} }
       ],
       events: [
         { id: 'ev-trip', emoji: '🚗', title: '경주 가족여행 · 잎새달스므날', start: '2026-11-21', end: '2026-11-22', memo: '황리단길 · 테라로사 도보 5분' },
@@ -1194,6 +1381,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         { id: 'mm-bday', text: '딸 12/7 만 3세\n케이크는 영광읍에서 픽업', color: 'pink', at: 0 }
       ],
       meal: { note: '이번 주는 13개 메뉴 중 골라 담아 보세요. 장보기 목록까지 같이 정리돼요.' },
+      photoFrame: { photo: '', caption: DEFAULT_CAPTION },
       weather: {
         checkedAt: '2026-11-17T12:54:00+09:00',
         temp: '14°',
@@ -1259,7 +1447,8 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       todos: Array.isArray(raw.todos) ? raw.todos : d.todos,
       memos: Array.isArray(raw.memos) ? raw.memos : d.memos,
       meal: Object.assign({}, d.meal, raw.meal || {}),
-      weather: Object.assign({}, d.weather, raw.weather || {})
+      weather: Object.assign({}, d.weather, raw.weather || {}),
+      photoFrame: normalizePhotoFrame(raw.photoFrame)
     };
     out.family = out.family.map(function (m, i) {
       const base = d.family[i] || { id: 'm' + i, name: '가족', nick: '', role: '가족', tone: 'lilac', emoji: '🙂' };
@@ -1273,11 +1462,20 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         photo: typeof m.photo === 'string' ? m.photo : '',
         birth: typeof m.birth === 'string' ? m.birth : (base.birth || ''),
         status: m.status && m.status.label ? { label: String(m.status.label), at: Number(m.status.at) || 0 } : null,
-        schedules: Array.isArray(m.schedules) ? m.schedules.map(normalizeSchedule) : []
+        schedules: Array.isArray(m.schedules) ? m.schedules.map(normalizeSchedule) : [],
+        locIcons: normalizeLocIcons(m.locIcons)
       };
     });
     if (!out.weather.days || !Array.isArray(out.weather.days)) out.weather.days = d.weather.days;
     return out;
+  }
+  function normalizePhotoFrame(raw) {
+    const d = { photo: '', caption: DEFAULT_CAPTION };
+    if (!raw || typeof raw !== 'object') return d;
+    return {
+      photo: typeof raw.photo === 'string' && raw.photo.indexOf('data:image/') === 0 ? raw.photo : '',
+      caption: typeof raw.caption === 'string' ? raw.caption.slice(0, 60) : d.caption
+    };
   }
   function normalizeSchedule(s) {
     return {
@@ -1456,6 +1654,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     renderMembers();
     renderEvents();
     renderMeal();
+    renderPhotoFrame();
     renderWeather();
     renderTodos();
     renderMemos();
@@ -1496,11 +1695,12 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
   function renderNowStrip() {
     const strip = $('#nowStrip');
+    if (!strip) return;
     strip.innerHTML = state.family.map(function (m) {
       const st = statusText(m.status);
       return '<button type="button" class="now-chip' + (st ? '' : ' is-empty') + '" data-action="jump" data-id="' + esc(m.id) + '">' +
         avatarHtml(m, 28) +
-        '<span><span class="who">' + esc(m.nick || m.name) + '</span><br><span class="what">' + (st ? esc(st) : '미입력') + '</span></span>' +
+        '<span><span class="who">' + esc(m.nick || m.name) + '</span><br><span class="what">' + (st ? locLabelHtml(m, st, 18) : '미입력') + '</span></span>' +
         '</button>';
     }).join('');
   }
@@ -1527,7 +1727,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     const showBadge = m.role && m.role !== m.name;
 
     const sub = st
-      ? '오늘 <span class="st">' + esc(st) + '</span>'
+      ? '오늘 <span class="st">' + locLabelHtml(m, st, 18) + '</span>'
       : '<span class="st empty">아직 위치를 안 찍었어요</span>';
     const subTime = st ? agoLabel(m.status.at) : '한 번만 눌러 주세요';
 
@@ -1536,7 +1736,10 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     if (age) extra.push(esc(age));
 
     const presets = PRESETS.map(function (p) {
-      return '<button type="button" class="preset' + (st === p ? ' is-on' : '') + '" data-action="preset" data-id="' + esc(m.id) + '" data-label="' + esc(p) + '" aria-pressed="' + (st === p) + '">' + esc(p) + '</button>';
+      const nm = presetName(p);
+      const src = (m.locIcons && m.locIcons[nm]) || '';
+      const inner = src ? (locThumbHtml(src, 20) + esc(nm)) : esc(p);
+      return '<button type="button" class="preset' + (st === p ? ' is-on' : '') + '" data-action="preset" data-id="' + esc(m.id) + '" data-label="' + esc(p) + '" aria-pressed="' + (st === p) + '"' + (src ? ' title="' + esc(nm) + ' 사진 아이콘"' : '') + '>' + inner + '</button>';
     }).join('') +
       '<button type="button" class="preset custom' + (st && !isPreset ? ' is-on' : '') + '" data-action="custom-open" data-id="' + esc(m.id) + '">✏️ 직접</button>';
 
@@ -1672,7 +1875,18 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       ? (checked.getMonth() + 1) + '월 ' + checked.getDate() + '일 ' + hhmm(checked.getTime())
       : '확인 시점 정보 없음';
 
-    $('#weatherCard').innerHTML =
+    const days = w.days || [];
+    const first = days[0] ? days[0].d : '';
+    const last = days[days.length - 1] ? days[days.length - 1].d : '';
+    const sub = $('#wsSub');
+    if (sub) {
+      sub.textContent = (first ? first + (last ? ' ~ ' + last : '') + ' 예보' : '이번 주 예보')
+        + ' · 홍농읍 · AirKorea 미세먼지';
+    }
+
+    const card = $('#weatherCard');
+    if (!card) return;
+    card.innerHTML =
       '<div class="wnow">' +
         '<div class="wtemp">' + esc(w.temp || '–') + '</div>' +
         '<div>' +
@@ -1701,12 +1915,52 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       '</p>';
 
     const note = $('#weatherNote');
-    note.addEventListener('change', function () {
+    if (note) note.addEventListener('change', function () {
       state.weather.note = note.value;
       state.weather.checkedAt = new Date().toISOString();
       commit();
       toast('나들이 메모를 저장했어요');
     });
+  }
+
+  /* =====================================================================
+     우리 가족 사진 액자
+     ===================================================================== */
+  function renderPhotoFrame() {
+    const box = $('#photoFrameCard');
+    if (!box) return;
+    const pf = state.photoFrame || { photo: '', caption: DEFAULT_CAPTION };
+    const cap = String(pf.caption || '').trim();
+    const has = !!pf.photo;
+    const meta = $('#photoFrameMeta');
+    if (meta) meta.textContent = has ? '사진을 눌러 바꿔요' : '한 장 걸어 두세요';
+
+    const shot = has
+      ? '<div class="pframe-shot" data-action="frame-upload" role="button" tabindex="0" aria-label="가족 사진 바꾸기">' +
+          '<img src="' + esc(pf.photo) + '" alt="우리 가족 사진">' +
+        '</div>'
+      : '<div class="pframe-shot is-empty" data-action="frame-upload" role="button" tabindex="0" aria-label="가족 사진 올리기">' +
+          '<span class="pf-fairy" aria-hidden="true"><svg class="fairy" viewBox="0 0 120 120"><use href="#hachuFairy"/></svg></span>' +
+          '<strong>우리 가족 사진 한 장</strong>' +
+          '<span class="pf-sub">여기 걸어 두면 볼 때마다 따뜻해져요</span>' +
+          '<span class="pf-emoji" aria-hidden="true">🖼️</span>' +
+        '</div>';
+
+    box.innerHTML = '<div class="pframe">' +
+      '<div class="pframe-mat">' + shot + '</div>' +
+      '<div class="pframe-cap-row">' +
+        '<span class="pframe-cap' + (cap ? '' : ' is-empty') + '">' + (cap ? esc(cap) : '문구를 넣어 보세요') + '</span>' +
+        '<button type="button" class="cap-edit" data-action="frame-cap-edit" aria-label="사진 문구 고치기" title="문구 고치기">✏️</button>' +
+      '</div>' +
+      '<form class="pframe-form" data-form="frame-cap" hidden>' +
+        '<input class="input" name="cap" maxlength="40" placeholder="예: 우리 가족 행복하게 🌸" aria-label="사진 문구" value="' + esc(cap) + '">' +
+        '<button class="btn" type="submit">저장</button>' +
+      '</form>' +
+      '<div class="pframe-actions">' +
+        '<button type="button" class="btn' + (has ? ' ghost' : '') + '" data-action="frame-upload">📷 ' + (has ? '사진 바꾸기' : '가족 사진 올리기') + '</button>' +
+        '<button type="button" class="btn ghost" data-action="frame-clear"' + (has ? '' : ' hidden') + '>지우기</button>' +
+      '</div>' +
+    '</div>';
   }
 
   function renderTodos() {
@@ -1815,6 +2069,26 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       }
       if (a === 'photo' && m) {
         openPhotoPicker(id);
+        return;
+      }
+      if (a === 'loc-icon' && m) {
+        openLocPicker(m.id, t.getAttribute('data-loc'));
+        return;
+      }
+      if (a === 'loc-icon-reset' && m) {
+        resetLocIcon(m.id, t.getAttribute('data-loc'));
+        return;
+      }
+      if (a === 'frame-upload') {
+        openFramePicker();
+        return;
+      }
+      if (a === 'frame-clear') {
+        clearFramePhoto();
+        return;
+      }
+      if (a === 'frame-cap-edit') {
+        toggleFrameCaption();
         return;
       }
       if (a === 'edit-member' && m) {
@@ -1929,6 +2203,15 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       return;
     }
 
+    if (form.matches('form[data-form="frame-cap"]')) {
+      e.preventDefault();
+      const v = ($('input[name="cap"]', form).value || '').trim().slice(0, 40);
+      state.photoFrame.caption = v;
+      commit(); renderPhotoFrame();
+      toast(v ? '사진 문구를 저장했어요' : '사진 문구를 지웠어요');
+      return;
+    }
+
     if (form.matches('form[data-form="sched"]')) {
       e.preventDefault();
       const id = form.getAttribute('data-id');
@@ -2001,6 +2284,50 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     });
   }
 
+  function fileToImage(file) {
+    return new Promise(function (resolve, reject) {
+      const reader = new FileReader();
+      reader.onerror = function () { reject(new Error('read failed')); };
+      reader.onload = function () {
+        loadImage(String(reader.result)).then(resolve, function () { reject(new Error('image load failed')); });
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  /* 캔버스 → WebP 0.82 (안 되면 JPEG) */
+  function encodeCanvas(cv) {
+    let out = '';
+    try { out = cv.toDataURL('image/webp', 0.82); } catch (e) { out = ''; }
+    if (!out || out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/jpeg', 0.82);
+    return out;
+  }
+
+  /* 정사각 크롭 — 프로필 256 · 위치 아이콘 128 */
+  function squareData(img, S) {
+    const canvas = document.createElement('canvas');
+    canvas.width = S; canvas.height = S;
+    const ctx = canvas.getContext('2d');
+    const scale = Math.max(S / img.width, S / img.height);
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, S, S);
+    ctx.drawImage(img, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
+    return encodeCanvas(canvas);
+  }
+
+  /* 비율 유지 축소 — 가족 사진 액자 (최대 960px) */
+  function fitData(img, maxW, maxH) {
+    const canvas = document.createElement('canvas');
+    const scale = Math.min(1, maxW / img.width, maxH / img.height);
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    return encodeCanvas(canvas);
+  }
+
   function handlePhoto(file, memberId) {
     const m = state.family.filter(function (x) { return x.id === memberId; })[0];
     if (!m) return;
@@ -2008,35 +2335,119 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       toast('사진 파일만 넣을 수 있어요');
       return;
     }
-    const reader = new FileReader();
-    reader.onerror = function () { toast('사진을 읽지 못했어요'); };
-    reader.onload = function () {
-      loadImage(String(reader.result)).then(function (img) {
-        const S = LS_PHOTO_SIZE;
-        const canvas = document.createElement('canvas');
-        canvas.width = S; canvas.height = S;
-        const ctx = canvas.getContext('2d');
-        const scale = Math.max(S / img.width, S / img.height);
-        const w = Math.max(1, Math.round(img.width * scale));
-        const h = Math.max(1, Math.round(img.height * scale));
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, S, S);
-        ctx.drawImage(img, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
-
-        let out = '';
-        try { out = canvas.toDataURL('image/webp', 0.82); } catch (err) { out = ''; }
-        if (!out || out.indexOf('data:image/webp') !== 0) {
-          out = canvas.toDataURL('image/jpeg', 0.82);
-        }
-        m.photo = out;
-        commit(); renderMembers(); renderNowStrip();
-        toast('사진을 넣었어요 · ' + Math.round(out.length / 1024) + 'KB');
-      }).catch(function () {
-        toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
-      });
-    };
-    reader.readAsDataURL(file);
+    fileToImage(file).then(function (img) {
+      const out = squareData(img, LS_PHOTO_SIZE);
+      m.photo = out;
+      commit(); renderMembers(); renderNowStrip(); renderLocEditor();
+      toast('사진을 넣었어요 · ' + Math.round(out.length / 1024) + 'KB');
+    }).catch(function () {
+      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
+    });
   }
+
+  /* =====================================================================
+     8-b. 위치 아이콘 사진 (128×128 · 카드·상태·상단 요약에 표시)
+     ===================================================================== */
+  let locTarget = null;
+  function openLocPicker(memberId, name) {
+    if (!memberId || !name) return;
+    locTarget = { id: memberId, name: name };
+    const input = $('#locIconInput');
+    input.value = '';
+    input.click();
+  }
+  $('#locIconInput').addEventListener('change', function (e) {
+    const file = e.target.files && e.target.files[0];
+    const t = locTarget;
+    locTarget = null;
+    e.target.value = '';
+    if (file && t) applyLocIcon(file, t.id, t.name);
+  });
+
+  function applyLocIcon(file, memberId, name) {
+    const m = state.family.filter(function (x) { return x.id === memberId; })[0];
+    if (!m) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      toast('사진 파일만 넣을 수 있어요');
+      return;
+    }
+    fileToImage(file).then(function (img) {
+      const data = squareData(img, LOC_ICON_SIZE);
+      if (!m.locIcons) m.locIcons = {};
+      m.locIcons[name] = data;
+      commit();
+      renderMembers(); renderNowStrip(); renderLocEditor();
+      toast(name + ' 아이콘 사진을 넣었어요 · ' + Math.round(data.length / 1024) + 'KB');
+    }).catch(function () {
+      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
+    });
+  }
+
+  function resetLocIcon(memberId, name) {
+    const m = state.family.filter(function (x) { return x.id === memberId; })[0];
+    if (!m || !m.locIcons || !m.locIcons[name]) return;
+    delete m.locIcons[name];
+    commit();
+    renderMembers(); renderNowStrip(); renderLocEditor();
+    toast(name + ' 사진을 지우고 기본 이모지로 돌렸어요');
+  }
+
+  /* =====================================================================
+     8-c. 우리 가족 사진 액자 (최대 960px)
+     ===================================================================== */
+  function openFramePicker() {
+    const input = $('#frameInput');
+    input.value = '';
+    input.click();
+  }
+  $('#frameInput').addEventListener('change', function (e) {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      toast('사진 파일만 넣을 수 있어요');
+      return;
+    }
+    fileToImage(file).then(function (img) {
+      const data = fitData(img, FRAME_MAX, FRAME_MAX);
+      state.photoFrame.photo = data;
+      commit(); renderPhotoFrame();
+      toast('가족 사진을 걸었어요 · ' + Math.round(data.length / 1024) + 'KB');
+    }).catch(function () {
+      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
+    });
+  });
+
+  function clearFramePhoto() {
+    if (!state.photoFrame || !state.photoFrame.photo) return;
+    const prev = state.photoFrame.photo;
+    state.photoFrame.photo = '';
+    commit(); renderPhotoFrame();
+    toast('사진을 액자에서 내렸어요', {
+      label: '되돌리기',
+      onClick: function () { state.photoFrame.photo = prev; commit(); renderPhotoFrame(); }
+    });
+  }
+
+  function toggleFrameCaption() {
+    const card = $('#photoFrameCard');
+    const form = card ? $('form[data-form="frame-cap"]', card) : null;
+    if (!form) return;
+    form.hidden = !form.hidden;
+    if (!form.hidden) {
+      const input = $('input[name="cap"]', form);
+      setTimeout(function () { input.focus(); input.select(); }, 30);
+    }
+  }
+
+  /* role="button" 인 액자·사진 영역을 키보드로도 열 수 있게 */
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const el = document.activeElement;
+    if (!el || !el.matches || !el.matches('[role="button"][data-action]')) return;
+    e.preventDefault();
+    el.click();
+  });
 
   /* =====================================================================
      9. 가족 정보 수정 시트
@@ -2056,7 +2467,27 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       ? '<img src="' + esc(m.photo) + '" alt="">'
       : '<span class="fallback" aria-hidden="true">' + esc(m.emoji || '🙂') + '</span>';
     av.style.borderColor = 'var(--tone)';
+    renderLocEditor();
     openOverlay('#memberSheet');
+  }
+
+  /* 시트 안 위치 아이콘 편집 그리드 */
+  function renderLocEditor() {
+    const box = $('#msLocGrid');
+    if (!box) return;
+    const m = state.family.filter(function (x) { return x.id === editingMember; })[0];
+    if (!m) { box.innerHTML = ''; return; }
+    box.innerHTML = PRESETS.map(function (p) {
+      const nm = presetName(p);
+      const src = (m.locIcons && m.locIcons[nm]) || '';
+      const on = !!src;
+      return '<div class="loc-item">' +
+        '<span class="lo-ic" aria-hidden="true">' + (on ? '<img src="' + esc(src) + '" alt="">' : esc(presetEmoji(p))) + '</span>' +
+        '<span class="lo-nm">' + esc(nm) + '</span>' +
+        '<button type="button" class="lo-b" data-action="loc-icon" data-id="' + esc(m.id) + '" data-loc="' + esc(nm) + '" aria-label="' + esc(nm) + ' 아이콘 사진 ' + (on ? '바꾸기' : '넣기') + '" title="' + (on ? '사진 바꾸기' : '사진 넣기') + '">' + (on ? '🔄' : '📷') + '</button>' +
+        '<button type="button" class="lo-b" data-action="loc-icon-reset" data-id="' + esc(m.id) + '" data-loc="' + esc(nm) + '" aria-label="' + esc(nm) + ' 사진 지우고 기본 이모지로" title="기본 이모지로"' + (on ? '' : ' disabled') + '>↺</button>' +
+      '</div>';
+    }).join('');
   }
 
   $('#msSave').addEventListener('click', function () {
@@ -2179,6 +2610,12 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      ===================================================================== */
   $('#btnSettings').addEventListener('click', openSettings);
   $('#bannerSetup').addEventListener('click', openSettings);
+  /* 헤더 날씨 알약 → 일주일 날씨 모달 */
+  $('#headWeather').addEventListener('click', function () {
+    renderWeather();
+    openOverlay('#weatherSheet');
+  });
+  $('#wsClose').addEventListener('click', closeSheets);
   $('#stClose').addEventListener('click', function () {
     closeSheets();
     setTimeout(function () { $('#settingsSheet').classList.remove('above-gate'); }, 250);
