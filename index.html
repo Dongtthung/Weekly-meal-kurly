@@ -174,6 +174,59 @@
   .logempty{padding:12px 0 2px;font-size:11.5px;color:#9C95A8;line-height:1.6}
   .logfoot{margin:8px 0 0;font-size:10.5px;color:#A9A2B4;line-height:1.55}
 
+  /* 월간 달력 (지난 메모 기록) */
+  .mcal{border:1px solid var(--line);border-radius:13px;background:#fff;padding:7px 7px 6px;margin-top:6px}
+  .mcal-top{display:flex;align-items:center;gap:5px;padding:1px 1px 7px}
+  .mcal-nav{
+    flex:0 0 auto;width:26px;height:26px;padding:0;border-radius:8px;cursor:pointer;font-family:inherit;
+    border:1px solid var(--line);background:#FCFAF5;color:var(--lilac-deep);font-size:14px;line-height:1;
+  }
+  .mcal-nav:active{background:var(--lilac-100)}
+  .mcal-title{flex:0 0 auto;font-size:12.5px;font-weight:800;color:#4B4459;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+  .mcal-badge{
+    flex:0 0 auto;font-size:9.5px;font-weight:800;color:#fff;background:var(--lilac);
+    border-radius:999px;padding:2px 6px;line-height:1.35;white-space:nowrap;
+  }
+  .mcal-now{
+    flex:0 0 auto;font-family:inherit;font-size:9.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    border:1px solid var(--lilac-200);background:var(--lilac-100);color:var(--lilac-deep);
+    border-radius:999px;padding:3px 7px;line-height:1.2;
+  }
+  .mcal-total{margin-left:auto;flex:0 0 auto;font-size:10px;font-weight:800;color:#A79FBB;white-space:nowrap}
+  .mcal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .mcal-wd{text-align:center;font-size:9.5px;font-weight:800;color:#A79FBB;padding:0 0 3px;line-height:1.3}
+  .mcal-wd.sun{color:#C57C74}
+  .mcal-wd.sat{color:#7F90BA}
+  .cday{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+    min-height:40px;padding:3px 1px;border:1px solid transparent;border-radius:9px;
+    background:transparent;font-family:inherit;cursor:pointer;line-height:1;appearance:none;-webkit-appearance:none;
+  }
+  .cday.out{visibility:hidden;cursor:default}
+  .cday .cdnum{font-size:11.5px;font-weight:800;color:#4B4459;line-height:1;font-variant-numeric:tabular-nums}
+  .cday.has{background:#F8F3FF}
+  .cday.today{border-color:var(--lilac-200);background:#FBF7FF}
+  .cday.sel{background:var(--lilac);border-color:var(--lilac);box-shadow:0 2px 7px rgba(110,82,162,.22)}
+  .cday.sel .cdnum{color:#fff}
+  .cdots{display:flex;align-items:center;justify-content:center;gap:2px;height:6px}
+  .cdot{display:block;width:5px;height:5px;border-radius:50%;background:var(--lilac)}
+  .cdot.menu{background:var(--mint)}
+  .cday.sel .cdot{background:#fff}
+  .cday.sel .cdot.menu{background:#CFEBDB}
+  .cmore{font-size:8px;font-weight:800;color:#A79FBB;line-height:1}
+  .cday.sel .cmore{color:#EFE6F9}
+  .cal-legend{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:6px 1px 0;font-size:9.5px;font-weight:700;color:#9C95A8}
+  .cal-legend span{display:inline-flex;align-items:center;gap:4px}
+  .cal-legend .lg-today{display:inline-block;width:8px;height:8px;border-radius:3px;border:1px solid var(--lilac-200);background:#FBF7FF}
+  .caldetail{margin-top:8px;padding-top:2px;border-top:1px solid #F3EEE6}
+  .caldetail-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 1px 1px}
+  .caldetail-date{font-size:11.5px;font-weight:800;color:#4B4459;letter-spacing:.01em}
+  .cdcount{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--lilac-deep);background:var(--lilac-100);border-radius:999px;padding:2px 7px}
+  .caldetail .logitem{padding:8px 0;border-top:1px dashed #F1ECE3}
+  .caldetail .logitem:first-of-type{border-top:0;padding-top:6px}
+  .logtime{flex:1;min-width:0;font-size:10.5px;font-weight:800;color:#8C84A0;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+  .calempty{margin:0;padding:10px 0 0;font-size:11.5px;color:#9C95A8;line-height:1.6}
+
   /* ---------- 전체 메뉴 목록 ---------- */
   .mtools{margin:10px 14px 0}
   .msearch{
@@ -517,7 +570,7 @@
       </div>
       <section class="memolog" id="memoLog" aria-label="지난 메모 기록">
         <button class="memolog-head" type="button" id="memoLogHead" data-action="toggle-memolog" aria-expanded="false" aria-controls="memoLogBody">
-          <span>📚 지난 메모 기록 (날짜별)</span>
+          <span>📚 지난 메모 기록 (월간 달력)</span>
           <span class="cnt" id="memoLogCount">0건</span>
           <span class="chev" aria-hidden="true">⌄</span>
         </button>
@@ -546,7 +599,7 @@
       목록에서 <b>+ 담기</b>를 누르면 위 ‘내가 담은 식단’의 선택한 날에 담겨요. 다 먹은 메뉴는 <b>✓</b>로 완료 체크!<br>
       어른용으로는 쌈장·김치·고춧가루만 곁들이면 따로 두 번 요리하지 않아도 돼요.<br>
       담은 메뉴·먹음 체크·메모는 이 휴대폰에만 저장됩니다.<br>
-      메모는 <b>📌 메모 기록 남기기</b>를 누르면 그날의 날짜·메뉴와 함께 <b>지난 메모 기록</b>에 남아, 다음 주가 되어도 펼쳐 볼 수 있어요.
+      메모는 <b>📌 메모 기록 남기기</b>를 누르면 그날의 날짜·메뉴와 함께 <b>지난 메모 기록</b> 달력에 점으로 남아, 다음 주·다음 달이 되어도 골라 볼 수 있어요.
       <br>
       <span id="storageWarn" hidden style="color:#B4864F;font-weight:700">이 브라우저는 저장을 막아 두었어요. 화면을 닫으면 담은 메뉴와 체크가 사라지니 크롬·사파리에서 열어 주세요.</span>
       <br>
@@ -1145,6 +1198,8 @@
   var toastTimer = null;
   var lastMemoKey = null;
   var memoLogOpen = false;
+  var calCursor = null;          /* 달력에 보이는 달 { y, m(0~11) } */
+  var calSel = null;             /* 달력에서 선택한 날짜 'YYYY-MM-DD' */
 
   function save() {
     try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
@@ -1490,7 +1545,8 @@
     });
   }
 
-  function memoLogItemHtml(r) {
+  function memoLogItemHtml(r, opts) {
+    var timeOnly = !!(opts && opts.timeOnly);
     var when = dateLabel(r.date);
     var time = timeOf(r.at);
     var menus = (r.menus || []).map(function (m) {
@@ -1500,15 +1556,134 @@
     var memoHtml = r.memo && String(r.memo).trim()
       ? esc(r.memo)
       : '<span class="none">메모 없이 메뉴만 기록</span>';
+    var lead = timeOnly
+      ? '<span class="logtime">' + (time ? '🕘 ' + esc(time) : '🕘 시간 미기록') + '</span>'
+      : '<span class="logdate">' + esc(when) + (time ? '<i>' + esc(time) + '</i>' : '') + '</span>';
     return '<article class="logitem" data-id="' + esc(r.id) + '">'
       + '<div class="logtop">'
-      +   '<span class="logdate">' + esc(when) + (time ? '<i>' + esc(time) + '</i>' : '') + '</span>'
+      +   lead
       +   '<button class="logdel" type="button" data-action="del-memo-log" data-id="' + esc(r.id) + '"'
-      +     ' aria-label="' + esc(when + ' 메모 기록 지우기') + '">×</button>'
+      +     ' aria-label="' + esc(when + (time ? ' ' + time : '') + ' 메모 기록 지우기') + '">×</button>'
       + '</div>'
       + '<div class="logmenus' + (menus ? '' : ' none') + '">🍽 ' + (menus || '담은 메뉴 없음') + '</div>'
       + '<p class="logmemo">' + memoHtml + '</p>'
       + '</article>';
+  }
+
+  /* ---------- 월간 달력 ---------- */
+  function parseDate(ds) {
+    var p = String(ds || '').split('-');
+    if (p.length !== 3) return null;
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  function monthOfDate(ds) {
+    var d = parseDate(ds);
+    return d ? { y: d.getFullYear(), m: d.getMonth() } : null;
+  }
+
+  function monthTitle(y, m) { return y + '년 ' + (m + 1) + '월'; }
+
+  /* 달력 상태 기본값: 가장 최근 기록이 있는 날, 없으면 오늘 */
+  function initCal() {
+    if (!calSel) {
+      var list = memoLogList();
+      calSel = list.length ? list[0].date : dateKey();
+    }
+    if (!calCursor) calCursor = monthOfDate(calSel) || monthOfDate(dateKey());
+  }
+
+  /* 날짜별 기록 모음 (memoLogList가 최신순이라 각 날짜 안에서도 최신순) */
+  function recordsByDay() {
+    var map = {};
+    memoLogList().forEach(function (r) {
+      if (!map[r.date]) map[r.date] = [];
+      map[r.date].push(r);
+    });
+    return map;
+  }
+
+  function calHtml(list, byDay) {
+    var y = calCursor.y, m = calCursor.m;
+    var today = dateKey();
+    var tm = monthOfDate(today);
+    var isThisMonth = !!tm && tm.y === y && tm.m === m;
+    var firstWd = new Date(y, m, 1).getDay();
+    var lastDate = new Date(y, m + 1, 0).getDate();
+    var totalCells = Math.ceil((firstWd + lastDate) / 7) * 7;
+    var cells = '';
+
+    for (var i = 0; i < totalCells; i++) {
+      var day = i - firstWd + 1;
+      if (day < 1 || day > lastDate) {
+        cells += '<span class="cday out" aria-hidden="true"></span>';
+        continue;
+      }
+      var ds = y + '-' + pad2(m + 1) + '-' + pad2(day);
+      var recs = byDay[ds] || [];
+      var cls = 'cday';
+      if (recs.length) cls += ' has';
+      if (ds === today) cls += ' today';
+      if (ds === calSel) cls += ' sel';
+      var dots = '';
+      if (recs.length) {
+        var hasMemo = recs.some(function (r) { return String(r.memo || '').trim(); });
+        var hasMenuOnly = recs.some(function (r) { return !String(r.memo || '').trim(); });
+        if (hasMemo) dots += '<i class="cdot"></i>';
+        if (hasMenuOnly) dots += '<i class="cdot menu"></i>';
+        if (recs.length > 1) dots += '<span class="cmore">' + recs.length + '</span>';
+      }
+      cells += '<button class="' + cls + '" type="button" data-action="cal-pick" data-date="' + ds + '"'
+        + ' aria-pressed="' + (ds === calSel ? 'true' : 'false') + '"'
+        + ' aria-label="' + esc(monthTitle(y, m) + ' ' + day + '일 ' + weekdayOf(ds) + '요일'
+            + (recs.length ? ' · 기록 ' + recs.length + '건' : ' · 기록 없음')
+            + (ds === today ? ' · 오늘' : '')) + '">'
+        + '<span class="cdnum">' + day + '</span>'
+        + '<span class="cdots">' + dots + '</span>'
+        + '</button>';
+    }
+
+    return '<div class="mcal" role="group" aria-label="지난 메모 기록 달력">'
+      + '<div class="mcal-top">'
+      +   '<button class="mcal-nav" type="button" data-action="cal-prev" aria-label="이전 달">‹</button>'
+      +   '<span class="mcal-title" id="calTitle">' + esc(monthTitle(y, m)) + '</span>'
+      +   '<button class="mcal-nav" type="button" data-action="cal-next" aria-label="다음 달">›</button>'
+      +   (isThisMonth
+            ? '<span class="mcal-badge" id="calThisMonth">이번 달</span>'
+            : '<button class="mcal-now" type="button" data-action="cal-now">이번 달로</button>')
+      +   '<span class="mcal-total">전체 ' + list.length + '건</span>'
+      + '</div>'
+      + '<div class="mcal-grid">'
+      +   '<span class="mcal-wd sun">일</span><span class="mcal-wd">월</span><span class="mcal-wd">화</span>'
+      +   '<span class="mcal-wd">수</span><span class="mcal-wd">목</span><span class="mcal-wd">금</span>'
+      +   '<span class="mcal-wd sat">토</span>'
+      +   cells
+      + '</div>'
+      + '<div class="cal-legend">'
+      +   '<span><i class="cdot"></i>메모 기록</span>'
+      +   '<span><i class="cdot menu"></i>메뉴만 기록</span>'
+      +   '<span><i class="lg-today"></i>오늘</span>'
+      + '</div>'
+      + '</div>';
+  }
+
+  function calDetailHtml(byDay, total) {
+    var recs = byDay[calSel] || [];
+    var head = '<div class="caldetail-head">'
+      + '<span class="caldetail-date">' + esc(dateLabel(calSel)) + '</span>'
+      + '<span class="cdcount">' + (recs.length ? recs.length + '건' : '기록 없음') + '</span>'
+      + '</div>';
+    var foot = '<p class="logfoot">요일 메모는 다음 주가 되면 자동으로 그 주의 날짜 기록으로 옮겨 담아요.<br>이 휴대폰·브라우저에만 저장되니 브라우저 저장 공간을 지우면 함께 사라집니다.</p>';
+    if (!recs.length) {
+      return '<div class="caldetail">' + head
+        + '<p class="calempty">이 날에 남긴 메모 기록이 없어요.'
+        + (total ? '' : '<br>아직 남긴 기록이 없어요. 메모를 쓰고 <b>📌 메모 기록 남기기</b>를 누르면 달력에 점이 찍혀요.')
+        + '</p>' + foot + '</div>';
+    }
+    return '<div class="caldetail">' + head
+      + recs.map(function (r) { return memoLogItemHtml(r, { timeOnly: true }); }).join('')
+      + foot + '</div>';
   }
 
   function renderMemoLog() {
@@ -1523,12 +1698,40 @@
     if (!body) return;
     body.hidden = !memoLogOpen;
     if (!memoLogOpen) return;
-    if (!list.length) {
-      body.innerHTML = '<p class="logempty">아직 남긴 기록이 없어요.<br>메모를 쓰고 <b>📌 메모 기록 남기기</b>를 누르면 날짜별로 차곡차곡 쌓여요.</p>';
-      return;
+    initCal();
+    var byDay = recordsByDay();
+    body.innerHTML = calHtml(list, byDay) + calDetailHtml(byDay, list.length);
+  }
+
+  function calSelectMonth(y, m) {
+    calCursor = { y: y, m: m };
+    var prefix = y + '-' + pad2(m + 1) + '-';
+    var today = dateKey();
+    if (today.indexOf(prefix) === 0) {
+      calSel = today;
+    } else {
+      var list = memoLogList();
+      var found = null;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].date.indexOf(prefix) === 0) { found = list[i].date; break; }
+      }
+      calSel = found || (prefix + '01');
     }
-    body.innerHTML = list.map(memoLogItemHtml).join('')
-      + '<p class="logfoot">요일 메모는 다음 주가 되면 자동으로 그 주의 날짜 기록으로 옮겨 담아요.<br>이 휴대폰·브라우저에만 저장되니 브라우저 저장 공간을 지우면 함께 사라집니다.</p>';
+    renderMemoLog();
+  }
+
+  function shiftMonth(delta) {
+    initCal();
+    var d = new Date(calCursor.y, calCursor.m + delta, 1);
+    calSelectMonth(d.getFullYear(), d.getMonth());
+  }
+
+  function calPickDate(ds) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ds || ''))) return;
+    calSel = ds;
+    var mo = monthOfDate(ds);
+    if (mo) calCursor = mo;
+    renderMemoLog();
   }
 
   /* 지금 보고 있는 날(오늘)의 메모·담은 메뉴를 날짜 기록으로 남긴다 */
@@ -1549,6 +1752,8 @@
     if (state.memoLog.length > 300) state.memoLog = state.memoLog.slice(-300);
     state.memos[key] = memo;
     memoLogOpen = true;
+    calSel = dk;                              /* 달력에서 그 날짜가 자동 선택됨 */
+    calCursor = monthOfDate(dk) || calCursor;
     save();
     render();
     toast(dateLabel(dk) + ' 메모를 기록에 남겼어요 · 총 ' + state.memoLog.length + '건');
@@ -2142,6 +2347,10 @@
     if (action === 'toggle-eaten') { toggleEaten(Number(el.getAttribute('data-idx'))); return; }
     if (action === 'save-memo-log') { saveMemoLog(); return; }
     if (action === 'toggle-memolog') { toggleMemoLog(); return; }
+    if (action === 'cal-prev') { shiftMonth(-1); return; }
+    if (action === 'cal-next') { shiftMonth(1); return; }
+    if (action === 'cal-now') { var tm = monthOfDate(dateKey()); if (tm) calSelectMonth(tm.y, tm.m); return; }
+    if (action === 'cal-pick') { calPickDate(el.getAttribute('data-date')); return; }
     if (action === 'del-memo-log') { delMemoLog(el.getAttribute('data-id')); return; }
     if (action === 'remove-menu') { removeMenu(Number(el.getAttribute('data-idx'))); return; }
     if (action === 'add-menu') { addMenu(el.getAttribute('data-menu')); return; }
@@ -2178,6 +2387,8 @@
           state = defaults();
           openRecipes = {};
           memoLogOpen = false;
+          calSel = null;
+          calCursor = null;
           try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
           $('copyFallback').hidden = true;
           search = '';
