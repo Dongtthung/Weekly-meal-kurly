@@ -1615,6 +1615,9 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      3. 상태 · 저장
      ===================================================================== */
   let state = null;
+  /* 이 기기에서 commit() 으로 저장한 횟수. 클라우드에서 받아 온 옛 값이
+     방금 넣은 사진을 덮어쓰지 않도록 판단할 때 쓴다. */
+  let writeSeq = 0;
   let config = loadConfig();
   const cloud = {
     configured: false,
@@ -1750,6 +1753,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
   /* 저장 + (연결 시) 클라우드로 밀어 올리기 */
   function commit(opts) {
+    writeSeq++;
     state.updatedAt = Date.now();
     saveLocal();
     if (!opts || opts.push !== false) queuePush();
@@ -2157,6 +2161,13 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
   function framePhotos() {
     return (state.photoFrame && Array.isArray(state.photoFrame.photos)) ? state.photoFrame.photos : [];
+  }
+  /* 최신 state 의 사진 액자를 보장하고 돌려준다 (비동기 콜백 안에서 다시 부른다) */
+  function frameEnsure() {
+    if (!state.photoFrame || !Array.isArray(state.photoFrame.photos)) {
+      state.photoFrame = { photos: [], caption: DEFAULT_CAPTION };
+    }
+    return state.photoFrame;
   }
   function clampFrameIdx() {
     const n = framePhotos().length;
@@ -2843,11 +2854,32 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         if (!heic) throw err;
         return convertHeicToImage(file);
       });
+    }).then(function (img) {
+      assertDrawable(img);   /* 0×0 으로 풀린 사진은 빈 값이 저장되므로 여기서 막는다 */
+      return img;
     });
   }
   /* 그린 뒤 bitmap 메모리 해제 */
   function releaseImage(img) {
     if (img && typeof img.close === 'function') { try { img.close(); } catch (e) {} }
+  }
+  /* 실제 픽셀 크기 — ImageBitmap 과 <img> 를 함께 다룬다 */
+  function imageSize(img) {
+    const w = img ? (img.naturalWidth || img.width || 0) : 0;
+    const h = img ? (img.naturalHeight || img.height || 0) : 0;
+    return { w: w || 0, h: h || 0 };
+  }
+  /* 크기가 0 인 사진(깨진 파일·변환 실패)은 캔버스에 아무것도 그려지지 않아
+     빈 사진이 저장된다. 그리기 전에 걸러 낸다. */
+  function assertDrawable(img) {
+    const px = imageSize(img);
+    if (!img || !px.w || !px.h) {
+      releaseImage(img);
+      const err = new Error('empty image');
+      err.empty = true;
+      throw err;
+    }
+    return px;
   }
 
   /* 캔버스 → WebP (기본 0.82, 안 되면 JPEG) */
@@ -2861,12 +2893,13 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
   /* 정사각 크롭 — 프로필 256 · 위치 아이콘 128 */
   function squareData(img, S) {
+    const px = assertDrawable(img);   /* 0×0 이미지 방어 */
     const canvas = document.createElement('canvas');
     canvas.width = S; canvas.height = S;
     const ctx = canvas.getContext('2d');
-    const scale = Math.max(S / img.width, S / img.height);
-    const w = Math.max(1, Math.round(img.width * scale));
-    const h = Math.max(1, Math.round(img.height * scale));
+    const scale = Math.max(S / px.w, S / px.h);
+    const w = Math.max(1, Math.round(px.w * scale));
+    const h = Math.max(1, Math.round(px.h * scale));
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, S, S);
     ctx.drawImage(img, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
@@ -2877,10 +2910,11 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
   /* 비율 유지 축소 — 가족 사진 액자 (최대 800px · 0.80) */
   function fitData(img, maxW, maxH, quality) {
+    const px = assertDrawable(img);   /* 0×0 이미지 방어 */
     const canvas = document.createElement('canvas');
-    const scale = Math.min(1, maxW / img.width, maxH / img.height);
-    const w = Math.max(1, Math.round(img.width * scale));
-    const h = Math.max(1, Math.round(img.height * scale));
+    const scale = Math.min(1, maxW / px.w, maxH / px.h);
+    const w = Math.max(1, Math.round(px.w * scale));
+    const h = Math.max(1, Math.round(px.h * scale));
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
     const out = encodeCanvas(canvas, quality);
@@ -2888,17 +2922,44 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     return out;
   }
 
+  /* 사진 변환은 비동기다. 그 사이 클라우드 동기화(startCloudSync·subscribeRealtime)나
+     다른 탭의 저장이 state 객체를 통째로 갈아 끼우므로, 변환 전에 잡아 둔 멤버 객체에
+     결과를 쓰면 버려진 옛 객체에만 저장되어 화면·클라우드 어디에도 남지 않는다.
+     ("사진을 넣었어요" 안내만 뜨고 기본 이모지가 그대로이던 원인)
+     → 결과를 넣을 때 최신 state 에서 대상을 다시 찾는다. */
+  function findMember(id) {
+    return state.family.filter(function (x) { return x.id === id; })[0] || null;
+  }
+  /* 가족 정보 시트가 그 멤버로 열려 있으면 그 안의 동그란 사진도 같이 바꾼다 */
+  function refreshSheetAvatar(memberId) {
+    if (editingMember !== memberId) return;
+    const sheet = $('#memberSheet');
+    if (!sheet || !sheet.classList.contains('open')) return;
+    const m = findMember(memberId);
+    const av = $('#msAvatar');
+    if (!m || !av) return;
+    av.innerHTML = m.photo
+      ? '<img src="' + esc(m.photo) + '" alt="">'
+      : '<span class="fallback" aria-hidden="true">' + esc(m.emoji || '🙂') + '</span>';
+  }
+
   function handlePhoto(file, memberId) {
-    const m = state.family.filter(function (x) { return x.id === memberId; })[0];
-    if (!m) return;
+    if (!findMember(memberId)) return;
     if (!isLikelyImageFile(file)) {
       toast(MSG_NOT_IMAGE);
       return;
     }
     fileToImage(file).then(function (img) {
       const out = squareData(img, LS_PHOTO_SIZE);
+      const m = findMember(memberId);   /* ← 변환 중 state 가 바뀌었을 수 있음 */
+      if (!m) {
+        toast('가족 정보가 바뀌어 사진을 넣지 못했어요. 다시 한 번 눌러 주세요', null, 6000);
+        return;
+      }
       m.photo = out;
-      commit(); renderMembers(); renderNowStrip(); renderLocEditor();
+      commit();
+      queuePush(100);   /* 사진은 오래 기다리지 않고 바로 가족에게 보이게 */
+      renderMembers(); renderNowStrip(); renderLocEditor(); refreshSheetAvatar(memberId);
       toast('사진을 넣었어요 · ' + Math.round(out.length / 1024) + 'KB');
     }).catch(function (err) {
       toast(photoErrorText(file, err), null, 6000);
@@ -2925,17 +2986,22 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   });
 
   function applyLocIcon(file, memberId, name) {
-    const m = state.family.filter(function (x) { return x.id === memberId; })[0];
-    if (!m) return;
+    if (!findMember(memberId)) return;
     if (!isLikelyImageFile(file)) {
       toast(MSG_NOT_IMAGE);
       return;
     }
     fileToImage(file).then(function (img) {
       const data = squareData(img, LOC_ICON_SIZE);
+      const m = findMember(memberId);   /* ← 변환 중 state 가 바뀌었을 수 있음 */
+      if (!m) {
+        toast('가족 정보가 바뀌어 아이콘을 넣지 못했어요. 다시 한 번 눌러 주세요', null, 6000);
+        return;
+      }
       if (!m.locIcons) m.locIcons = {};
       m.locIcons[name] = data;
       commit();
+      queuePush(100);
       renderMembers(); renderNowStrip(); renderLocEditor();
       toast(name + ' 아이콘 사진을 넣었어요 · ' + Math.round(data.length / 1024) + 'KB');
     }).catch(function (err) {
@@ -2969,24 +3035,22 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   /* 고른 사진들을 한 장씩 800px · WebP 0.80으로 줄여 액자에 건다 */
   function addFramePhotos(files) {
     if (!files || !files.length) return;
-    if (!state.photoFrame || !Array.isArray(state.photoFrame.photos)) {
-      state.photoFrame = { photos: [], caption: DEFAULT_CAPTION };
-    }
-    const pf = state.photoFrame;
-    const room = FRAME_MAX_PHOTOS - pf.photos.length;
+    const room = FRAME_MAX_PHOTOS - frameEnsure().photos.length;
     if (room <= 0) {
       toast('사진은 최대 ' + FRAME_MAX_PHOTOS + '장까지 걸 수 있어요');
       return;
     }
     const take = files.slice(0, room);
-    const before = pf.photos.length;
-    let added = 0, failed = 0, skipped = 0, heic = false, bytes = 0;
+    let added = 0, failed = 0, skipped = 0, heic = false, bytes = 0, firstIdx = -1;
 
     take.reduce(function (chain, file) {
       return chain.then(function () {
         if (!isLikelyImageFile(file)) { skipped++; return; }
         return fileToImage(file).then(function (img) {
           const data = fitData(img, FRAME_MAX, FRAME_MAX, FRAME_QUALITY);
+          const pf = frameEnsure();   /* ← 변환 중 state 가 바뀌었을 수 있음 */
+          if (!pf.photos || pf.photos.length >= FRAME_MAX_PHOTOS) { skipped++; return; }
+          if (firstIdx < 0) firstIdx = pf.photos.length;
           pf.photos.push({ id: uid('ph'), src: data, caption: '' });
           added++;
           bytes += data.length;
@@ -3002,7 +3066,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         else toast(MSG_NOT_IMAGE);
         return;
       }
-      frameIdx = before;   /* 새로 넣은 첫 사진부터 보여 주기 */
+      frameIdx = firstIdx > 0 ? firstIdx : 0;   /* 새로 넣은 첫 사진부터 보여 주기 */
       commit(); renderPhotoFrame();
       toast(added + '장을 걸었어요 · ' + Math.round(bytes / 1024) + 'KB'
         + (files.length > room ? ' · 최대 ' + FRAME_MAX_PHOTOS + '장' : '')
@@ -3446,6 +3510,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   async function startCloudSync() {
     cloud.mode = 'cloud';
     renderSyncUI();
+    const seqAtStart = writeSeq;   /* 받아 오는 사이 이 기기에서 편집했는지 보려고 */
     try {
       const res = await cloud.client.from(SUPABASE_TABLE).select('data, updated_at').eq('id', SUPABASE_ROW_ID).maybeSingle();
       if (res.error && res.error.code !== 'PGRST116') {
@@ -3455,7 +3520,10 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         return;
       }
       const remote = res.data && res.data.data ? normalizeState(res.data.data) : null;
-      if (remote && remote.updatedAt >= state.updatedAt) {
+      const localEdited = writeSeq !== seqAtStart;   /* 사진 변환이 끝나 방금 저장된 경우 등 */
+      /* 이 기기에서 방금 편집했거나, 이 기기 저장값이 더 최신(같은 시각 포함)이면
+         클라우드 값으로 갈아 끼우지 않는다. 갈아 끼우면 방금 넣은 사진이 사라진다. */
+      if (remote && !localEdited && remote.updatedAt > state.updatedAt) {
         state = remote;
         cloud.lastRemoteAt = remote.updatedAt;
         saveLocal();
@@ -3482,6 +3550,13 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         const incoming = payload && payload.new && payload.new.data;
         if (!incoming) return;
         const next = normalizeState(incoming);
+        /* 내가 올린 것이 그대로 돌아온 경우 — 사진을 방금 넣었어도 다시 그리지 않는다 */
+        if (next.updatedAt === state.updatedAt) {
+          cloud.lastRemoteAt = Math.max(cloud.lastRemoteAt, next.updatedAt);
+          return;
+        }
+        /* 이미 반영했거나 이 기기보다 오래된 값은 건너뛴다. 사진 변환 도중 state 가
+           바뀌어도 변환 콜백이 최신 state 에 결과를 다시 넣으므로 유실되지 않는다. */
         if (next.updatedAt > state.updatedAt && next.updatedAt > cloud.lastRemoteAt) {
           cloud.lastRemoteAt = next.updatedAt;
           state = next;
