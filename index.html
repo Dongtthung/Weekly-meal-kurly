@@ -1047,6 +1047,7 @@
   var openedQuick = {};          /* 재료 id -> 이미 연 재료 */
   var confirmCb = null;
   var toastTimer = null;
+  var lastMemoKey = null;
 
   function save() {
     try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
@@ -1312,7 +1313,8 @@
     }
 
     var memo = $('dayMemo');
-    if (document.activeElement !== memo) memo.value = state.memos[key] || '';
+    if (lastMemoKey !== key || document.activeElement !== memo) memo.value = state.memos[key] || '';
+    lastMemoKey = key;
   }
 
   /* ---------- render: 전체 메뉴 목록 ---------- */
