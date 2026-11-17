@@ -771,106 +771,206 @@
   /* =========================================================
      태블릿 가로모드 · 한 화면 대시보드 (≥768px)
      ========================================================= */
+  /* =========================================================
+     태블릿 가로모드 · 한 화면 대시보드 (≥768px)
+     1280×800 한 화면에 스크롤 없이 담기도록 압축한 밀도
+     ========================================================= */
   @media (min-width:768px){
-    body{font-size:15px;padding-bottom:22px}
-    .app{max-width:1240px;width:100%;padding:0 20px}
+    body{font-size:14px;padding-bottom:6px}
+    .app{max-width:1240px;width:100%;padding:0 18px}
 
+    /* --- 헤더: 브랜드 + 칩 한 줄, 안내 배너 얇게 --- */
     .head{
-      margin:0 -20px;
-      padding:15px 24px 13px;
-      border-radius:0 0 32px 32px;
-      grid-template-columns:minmax(240px,auto) 1fr auto;
+      margin:0 -18px;
+      padding:9px 20px 8px;
+      border-radius:0 0 22px 22px;
+      grid-template-columns:minmax(210px,auto) 1fr auto;
       grid-template-areas:
         "brand chips action"
         "banner banner banner";
-      gap:10px 14px;
+      gap:5px 12px;
       align-items:center;
     }
-    .brand{gap:11px}
-    .mascot{width:50px;height:50px}
-    .head h1{font-size:22px;margin-top:1px}
-    .head-chips{
-      grid-area:chips;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px 7px;
-      min-width:0;
-    }
-    .datechip,.clockchip,.wpil{font-size:11.5px;padding:6px 11px}
+    .brand{gap:8px}
+    .mascot{width:38px;height:38px;padding:2px}
+    .head h1{font-size:18px;margin-top:0}
+    .head h1 .h1-heart{width:11px;height:11px;vertical-align:0}
+    .eyebrow{font-size:8.5px;letter-spacing:.12em}
+    .head-chips{grid-area:chips;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:4px 6px;min-width:0}
+    .datechip,.clockchip,.wpil{font-size:10.5px;padding:4px 9px;gap:4px}
+    .badge{font-size:9.5px;padding:3px 7px;gap:4px}
+    .badge.tiny{font-size:9px;padding:2px 5px}
+    .icon-btn{width:34px;height:34px;border-radius:11px;font-size:14px}
     .head .now-strip{display:none}
-    .banner{margin-top:0;padding:5px 7px 5px 12px;border-radius:12px;font-size:10.5px;align-items:center}
-    .banner button{min-height:32px;padding:0 10px;font-size:10px;border-radius:9px}
+    .banner{margin-top:0;padding:2px 6px 2px 10px;border-radius:10px;font-size:10px;line-height:1.35;align-items:center}
+    .banner button{min-height:24px;padding:0 8px;font-size:9.5px;border-radius:8px}
 
-    /* 가족 카드 3열 */
-    .member-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
-    .mcard{padding:13px 13px 11px;border-radius:20px}
-    .mcard-top{gap:9px}
-    .avatar-btn,.avatar{width:52px;height:52px}
-    .avatar .fallback{font-size:22px}
-    .edit-btn{height:36px;min-width:48px;padding:0 9px;border-radius:12px;font-size:11px}
-    .mcard-name{font-size:15.5px}
-    .preset-row{margin-top:9px;gap:5px}
-    .preset{min-height:36px;padding:0 10px;font-size:11.5px;border-radius:12px}
-    .sched{margin-top:9px;padding-top:9px}
-    .sched-item{min-height:36px}
-    .sched-text{font-size:12.5px}
-    .add-ghost{min-height:38px;font-size:11.5px;border-radius:12px}
+    /* --- Row 1 · 가족 카드 3열 --- */
+    .member-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-items:stretch}
+    .mcard{padding:8px 10px 7px;border-radius:16px}
+    .mcard-top{gap:8px;align-items:center}
+    .avatar-btn,.avatar{width:38px;height:38px}
+    .avatar .fallback{font-size:17px}
+    .avatar-btn > .cam{left:-1px;bottom:-1px;width:15px;height:15px;font-size:7px}
+    .fairy-pal{right:-4px;bottom:-4px;width:17px;height:17px}
+    .mcard-id{padding-top:0}
+    .mcard-name{font-size:13.5px;gap:4px}
+    .mcard-nick{font-size:10.5px}
+    .role-badge{font-size:9px;padding:1px 6px}
+    .mcard-sub{font-size:11px;margin-top:1px;min-height:0;gap:3px}
+    .mcard-sub .at{font-size:9.5px}
+    .mcard-sub .loc-thumb{width:14px;height:14px;border-radius:5px;vertical-align:-3px;margin-right:1px}
+    .mcard-time{font-size:9px;margin-top:0}
+    .mini-meta{font-size:9px;margin-top:1px}
+    .edit-btn{height:26px;min-width:40px;padding:0 8px;border-radius:9px;font-size:10px}
+    .preset-row{margin-top:5px;gap:4px;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:1px}
+    .preset-row::-webkit-scrollbar{display:none}
+    .preset{min-height:26px;padding:0 6px;font-size:10px;border-radius:9px;gap:3px}
+    .preset .loc-thumb{width:14px;height:14px;border-radius:5px;vertical-align:-3px}
+    .custom-form{margin-top:4px;gap:4px}
+    .custom-form .input{height:32px;font-size:12.5px;border-radius:10px}
+    .custom-form .btn{min-height:32px;font-size:11.5px;padding:0 9px;border-radius:10px}
+    .sched{margin-top:5px;padding-top:5px}
+    .sched-head .t{font-size:9.5px}
+    .sched-head .xbtn{height:26px;min-height:26px;font-size:11px;border-radius:8px}
+    .sched-empty{font-size:10px;padding:1px 2px 0;line-height:1.4}
+    .sched-list{gap:1px;margin-top:2px}
+    .sched-item{min-height:28px;gap:6px;padding:0}
+    .sched-text{font-size:11px;line-height:1.3}
+    .sched-meta{font-size:9px;margin-top:0}
+    .sched .check{width:30px;height:30px;margin:-6px 0 -6px -7px}
+    .sched .check i{width:16px;height:16px;border-radius:5px;font-size:9.5px}
+    .sched-body{padding-top:1px}
+    .sched .xbtn{width:26px;height:26px;font-size:11px;border-radius:8px}
+    .sched-form{margin-top:4px;gap:4px}
+    .sched-form .input{height:32px;font-size:12.5px;border-radius:10px}
+    .sched-form .btn{min-height:32px;font-size:11.5px;padding:0 10px;border-radius:10px}
+    .add-ghost{min-height:28px;margin-top:6px;font-size:10.5px;border-radius:10px}
 
-    /* 본문 3열 */
+    /* --- 본문 3열 --- */
     .section{margin-top:0}
-    .dash{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
+    /* 한 화면 고정: 내용이 늘어도 대시보드는 화면 높이를 넘지 않고, 각 칸이 안에서 스크롤돼요 */
+    .dash{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:auto minmax(0,1fr);
+      gap:10px;align-items:stretch;max-height:calc(100vh - 116px)}
     .dash > *{order:0}
-    #secFamily{grid-column:1 / -1;margin-bottom:14px}
-    .col{display:flex;flex-direction:column;gap:14px;min-width:0}
+    #secFamily{grid-column:1 / -1;margin-bottom:6px}
+    .col{display:flex;flex-direction:column;gap:8px;min-width:0}
 
     /* Row 2 세 칸이 같은 높이로 끝나도록: 일정 · 할 일/메모는 남는 높이를 채워요 */
-    #secEvents{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
-    #eventList{flex:1 1 auto}
-    #secTodo{display:flex;flex-direction:column;min-height:0}
-    #secTodo .todo-card{flex:1 1 auto;display:flex;flex-direction:column}
-    #secTodo .todo-list{flex:1 1 auto}
-    #secMemo{display:flex;flex-direction:column;min-height:0}
-    #secMemo .memo-board{flex:1 1 auto;align-content:start}
+    #secEvents{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden}
+    #eventList{flex:1 1 auto;min-height:0;overflow-y:auto}
+    #secTodo{display:flex;flex-direction:column;flex:0 1 auto;min-height:0}
+    #secTodo .todo-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+    #secTodo .todo-list{flex:0 1 auto;min-height:0;overflow-y:auto}
+    #secMemo{display:flex;flex-direction:column;flex:0 1 auto;min-height:0}
+    #secMemo .memo-board{flex:1 1 auto;min-height:0;align-content:start;overflow-y:auto}
 
-    /* 2번째 줄: 일정 · 할 일/메모 · 사진 액자 */
+    /* Row 2 · 사진 액자 */
     #secPhoto{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
-    #secPhoto .pframe-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-    #secPhoto .pframe{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-    #secPhoto .pframe-mat{flex:1 1 auto;display:flex;min-height:0}
-    #secPhoto .pframe-shot{flex:1 1 auto;aspect-ratio:auto;height:auto;min-height:148px}
-    #secPhoto .pframe-cap-row{margin-top:8px}
-    #secPhoto .pframe-actions{margin-top:8px}
-    #secPhoto .pframe-actions .btn{min-height:38px}
-    .section-title{margin-bottom:8px}
-    .section-title h2{font-size:13.5px}
-    .section-title .right{font-size:10px}
+    #secPhoto .pframe-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;padding:9px}
+    #secPhoto .pframe{flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;min-height:0}
+    #secPhoto .pframe-mat{flex:1 1 auto;display:flex;padding:5px;border-radius:11px;min-height:0}
+    #secPhoto .pframe-shot{flex:1 1 auto;aspect-ratio:auto;height:auto;min-height:180px}
+    #secPhoto .pframe-shot.is-empty{padding:6px}
+    #secPhoto .pf-fairy{width:38px;height:38px}
+    #secPhoto .pframe-shot.is-empty strong{font-size:11.5px}
+    #secPhoto .pframe-shot.is-empty .pf-sub{font-size:9.5px}
+    #secPhoto .pframe-cap-row{margin-top:6px;padding:0 30px}
+    #secPhoto .pframe-cap{font-size:11.5px}
+    #secPhoto .pframe-cap-row .cap-edit{width:26px;height:26px;border-radius:8px;font-size:10px}
+    #secPhoto .pframe-form{margin-top:5px}
+    #secPhoto .pframe-form .input{height:32px;font-size:12.5px}
+    #secPhoto .pframe-form .btn{min-height:32px;font-size:11.5px}
+    #secPhoto .pframe-actions{margin-top:6px;gap:5px}
+    #secPhoto .pframe-actions .btn{min-height:30px;font-size:10.5px;border-radius:9px;padding:0 6px}
+    .pf-counter{top:6px;right:6px;padding:2px 7px;font-size:9.5px}
+    .pf-play{top:6px;left:6px;width:26px;height:26px;border-radius:8px;font-size:11px}
+    .pf-nav{width:28px;height:28px;font-size:15px}
+    .pf-nav.prev{left:5px}
+    .pf-nav.next{right:5px}
+    .pf-dots{bottom:6px;gap:3px}
+    .pf-dot{width:5px;height:5px}
+    .pf-dot.is-on{width:13px}
 
-    .dday-card{padding:12px 12px 11px;border-radius:16px}
-    .dday-card .tt{font-size:12px;min-height:30px}
-    .dday-card .dd{font-size:23px;margin-top:5px;padding:3px 11px}
-    .ev{padding:8px 8px 8px 10px;border-radius:14px}
-    .ev .ic{width:33px;height:33px;border-radius:10px;font-size:16px}
-    .ev-title{font-size:12.5px}
-    .add-ghost{margin-top:8px}
+    /* 섹션 제목 · D-day · 일정 */
+    .section-title{margin-bottom:6px;padding:0 2px}
+    .section-title h2{font-size:12.5px;gap:4px}
+    .section-title h2 .h2-heart{width:10px;height:10px}
+    .section-title .right{font-size:9.5px;padding:1px 7px}
+    .dday-grid{gap:8px;margin-bottom:8px}
+    .dday-card{padding:8px 10px 7px;border-radius:13px}
+    .dday-card .ic{font-size:14px}
+    .dday-card .tt{font-size:10.5px;line-height:1.3;min-height:27px;margin-top:2px;-webkit-line-clamp:2}
+    .dday-card .dd{font-size:16px;margin-top:3px;padding:1px 8px;border-radius:999px;gap:3px}
+    .dday-card .dt{font-size:9px;margin-top:2px}
+    .ev-list{gap:5px}
+    .ev{padding:5px 6px 5px 8px;border-radius:12px;gap:5px}
+    .ev .ic{width:26px;height:26px;border-radius:8px;font-size:13px}
+    .ev-main{gap:7px;padding:0;min-height:30px}
+    .ev-title{font-size:11.5px;line-height:1.3}
+    .ev-meta{font-size:9.5px;margin-top:1px}
+    .ev-memo{font-size:9.5px;margin-top:1px;line-height:1.3}
+    .dday-pill{font-size:9.5px;padding:2px 6px;border-radius:8px}
+    .ev-form{margin-top:6px;padding:8px;gap:5px;border-radius:12px}
+    .ev-form .input{height:34px;font-size:13px}
+    .ev-form .form-actions{margin-top:0}
+    .ev-form .form-actions .btn{min-height:32px;font-size:12px}
+    .emoji-chips{gap:4px}
+    .emoji-chips button{width:30px;height:30px;font-size:14px;border-radius:9px}
 
-    .todo-card{padding:4px 10px 10px}
-    .todo{min-height:38px}
-    .todo-text{font-size:12.5px}
-    .memo-board{gap:8px}
-    .memo{min-height:60px;padding:9px}
-    .memo .mt{font-size:11.5px}
-    .memo-add{margin-top:8px;padding:9px}
+    /* 할 일 · 메모 */
+    .todo-card{padding:2px 8px 8px}
+    .todo{gap:6px;padding:0;min-height:26px}
+    .todo .check{width:32px;height:32px;margin:-4px 0 -4px -7px}
+    .todo .check i{width:16px;height:16px;border-radius:50%;font-size:9.5px}
+    .todo-body{padding-top:1px}
+    .todo-text{font-size:11.5px;line-height:1.3}
+    .todo .who{font-size:8.5px;padding:0 4px;margin-left:3px;border-radius:5px}
+    .todo .xbtn{width:26px;height:26px;font-size:11px;border-radius:8px}
+    .todo-form{margin-top:6px;gap:5px}
+    .todo-form .input{height:32px;font-size:12.5px}
+    .todo-form .btn{flex:0 0 38px;font-size:15px;min-height:32px;border-radius:10px}
+    .memo-board{gap:6px}
+    .memo{min-height:44px;padding:7px 7px 6px;border-radius:12px}
+    .memo .mt{font-size:10.5px;line-height:1.4;padding-right:18px}
+    .memo .md{font-size:8.5px;margin-top:2px}
+    .memo .xbtn{width:26px;height:26px;font-size:10px;border-radius:8px}
+    .memo-add{margin-top:6px;padding:7px;border-radius:12px}
+    .memo-add textarea{min-height:34px;font-size:12.5px;padding:6px 9px;line-height:1.4}
+    .color-pick{gap:5px;margin-top:6px}
+    .color-pick button{width:28px;height:28px}
+    .color-pick .btn{min-height:28px;font-size:11px;padding:0 10px;border-radius:9px}
 
-    .wcard{padding:13px}
-    .wday{padding:4px 2px;font-size:12px}
-    .wday .d{flex-basis:70px;font-size:11px}
-    .wday .t{flex-basis:70px}
-    .wtemp{font-size:30px}
-    .wair{margin-top:8px;padding:7px 10px;font-size:11px}
-    .wdays{margin-top:8px}
-    .note-input{min-height:50px}
-    .foot{margin:22px 2px 4px}
+    /* 날씨 · 메모 */
+    .wcard{padding:11px}
+    .wtemp{font-size:26px}
+    .wcond{font-size:12px}
+    .wmeta{font-size:10px}
+    .wair{margin-top:7px;padding:6px 9px;font-size:10.5px}
+    .wdays{margin-top:7px}
+    .wday{padding:3px 2px;font-size:11.5px;gap:7px}
+    .wday .d{flex-basis:66px;font-size:10.5px}
+    .wday .t{flex-basis:66px}
+    .wday .n{font-size:9.5px}
+    .wfoot{margin-top:7px;font-size:9.5px}
+    .wfoot a{font-size:10px;padding:4px 8px}
+    .wattr{font-size:9px;margin-top:6px}
+    .note-label{margin-top:8px;font-size:9.5px}
+    .note-input{min-height:40px;margin-top:4px;font-size:11.5px;padding:7px 9px}
+    .foot{margin:6px 2px 0;font-size:9.5px;line-height:1.45}
+    .foot br{display:none}
+    .foot .foot-fairy{display:none}
 
     .sheet{max-width:560px;border-radius:24px;margin:auto}
     .overlay{align-items:center;padding:20px}
     .gate-inner{max-width:400px}
+  }
+  /* 칩 줄이 넘치는 좁은 태블릿: 오른쪽을 흐리게 해서 옆으로 넘길 수 있음을 알려요 */
+  @media (min-width:768px) and (max-width:1119px){
+    .preset-row{
+      -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 16px),rgba(0,0,0,.15) 100%);
+      mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 16px),rgba(0,0,0,.15) 100%);
+    }
   }
 
   /* 좁은 태블릿(768~1023)은 헤더를 두 줄로 */
@@ -886,17 +986,14 @@
   }
 
   @media (min-width:1100px){
-    .app{padding:0 22px}
+    .app{padding:0 20px}
     .head-chips{flex-wrap:nowrap}
-    .head{padding:14px 28px 12px}
-    .head h1{font-size:23px}
-    .mcard{padding:13px 14px 11px}
-    .preset{min-height:35px;font-size:11.5px}
-    .dash{gap:16px}
-    .col{gap:16px}
-    #secFamily{margin-bottom:18px}
-    .wday{padding:5px 2px}
-    .wfoot{margin-top:8px}
+    .head{padding:9px 26px 8px}
+    .head h1{font-size:18.5px}
+    .dash{gap:10px}
+    .col{gap:8px}
+    #secFamily{margin-bottom:6px}
+    .wfoot{margin-top:7px}
   }
 
   @media (prefers-reduced-motion:reduce){
