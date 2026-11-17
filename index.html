@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FDFAF3">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>우리 집 5일 저녁 · 컬리 장보기</title>
+<style>
+  :root{
+    --ivory:#FDFAF3;
+    --card:#FFFFFF;
+    --lilac:#8E6FC0;
+    --lilac-deep:#6E52A2;
+    --lilac-100:#EFE7F8;
+    --lilac-200:#DDD0EF;
+    --ink:#2E2A38;
+    --sub:#7A7288;
+    --line:#EFEAE1;
+    --mint:#4F9B7E;
+    --sand:#B4864F;
+    --shadow:0 2px 12px rgba(70,48,100,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",system-ui,sans-serif;
+    background:var(--ivory);
+    color:var(--ink);
+    font-size:16px;
+    line-height:1.5;
+    padding-bottom:calc(96px + env(safe-area-inset-bottom));
+    -webkit-text-size-adjust:100%;
+  }
+  .app{max-width:480px;margin:0 auto;min-height:100vh}
+
+  /* header */
+  .head{
+    padding:22px 18px 14px;
+    background:linear-gradient(180deg,#F3EAFA 0%,#FBF6F0 55%,var(--ivory) 100%);
+  }
+  .head .eyebrow{font-size:11.5px;font-weight:800;letter-spacing:.08em;color:var(--lilac-deep);opacity:.8}
+  .head h1{margin:4px 0 2px;font-size:21px;letter-spacing:-.02em;line-height:1.25}
+  .head .sub{margin:0;font-size:13px;color:var(--sub)}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .chip{
+    font-size:11.5px;font-weight:700;color:#5C4A78;background:rgba(255,255,255,.85);
+    border:1px solid var(--lilac-200);border-radius:999px;padding:5px 10px;
+  }
+  .chip.plain{color:var(--sub);border-color:var(--line);background:#fff}
+
+  /* views */
+  .view{display:none}
+  .view.active{display:block}
+
+  .section-title{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 18px;margin:20px 0 8px;font-size:12.5px;font-weight:800;color:var(--sub);letter-spacing:.02em;
+  }
+  .section-title .right{font-weight:700;color:var(--lilac-deep);font-size:12px}
+
+  /* progress dots */
+  .dots{display:flex;gap:6px;padding:0 18px;margin-top:2px}
+  .dots i{
+    flex:1;height:6px;border-radius:99px;background:#EDE6F5;display:block;
+  }
+  .dots i.on{background:var(--lilac)}
+
+  /* day card */
+  .day{
+    background:var(--card);border:1px solid var(--line);border-radius:18px;
+    margin:0 14px 12px;box-shadow:var(--shadow);overflow:hidden;
+    transition:border-color .18s ease, box-shadow .18s ease;
+  }
+  .day.today{border-color:var(--lilac-200);box-shadow:0 6px 20px rgba(126,92,180,.13)}
+  .day.done{background:#FBFAF6}
+  .day-head{
+    display:flex;align-items:center;gap:12px;padding:13px 14px;
+    cursor:pointer;user-select:none;
+  }
+  .day-head:focus-visible{outline:2px solid var(--lilac);outline-offset:-2px}
+  .day-badge{
+    flex:0 0 auto;width:40px;height:40px;border-radius:13px;background:var(--lilac-100);
+    color:var(--lilac-deep);display:grid;place-items:center;font-size:15px;font-weight:800;
+  }
+  .day.today .day-badge{background:var(--lilac);color:#fff}
+  .day-main{flex:1;min-width:0}
+  .day-name{font-size:11.5px;font-weight:800;color:var(--sub);display:flex;align-items:center;gap:6px}
+  .day-name .now{background:var(--lilac);color:#fff;font-size:10px;border-radius:6px;padding:1px 5px;letter-spacing:.02em}
+  .day-menu{display:block;font-size:14.5px;font-weight:700;letter-spacing:-.01em;margin-top:2px;line-height:1.35;word-break:keep-all;overflow-wrap:anywhere}
+  .day.done .day-menu{color:#9A93A8;text-decoration:line-through;text-decoration-thickness:1px}
+  .chev{flex:0 0 auto;color:#C6BFD2;font-size:12px;transition:transform .2s ease;margin-left:2px}
+  .day.open .chev{transform:rotate(180deg)}
+  .check{
+    flex:0 0 auto;width:34px;height:34px;border-radius:50%;border:1.6px solid var(--lilac-200);
+    background:#fff;color:transparent;display:grid;place-items:center;font-size:15px;
+    cursor:pointer;padding:0;line-height:1;
+  }
+  .check.on{background:var(--lilac);border-color:var(--lilac);color:#fff}
+
+  .day-body{display:none;border-top:1px dashed var(--line);padding:14px}
+  .day.open .day-body{display:block}
+
+  .menu-list{list-style:none;margin:0 0 12px;padding:0}
+  .menu-list li{display:flex;gap:9px;font-size:14.5px;padding:4px 0;line-height:1.4}
+  .menu-list .bullet{color:var(--lilac);font-size:12px;line-height:1.7}
+
+  .tip{background:#FAF5FF;border:1px solid #F0E6FB;border-radius:14px;padding:12px;font-size:13.5px;color:#544B63;line-height:1.6}
+  .tip b{display:block;margin-bottom:5px;font-size:12px;color:var(--lilac-deep);letter-spacing:.01em}
+
+  .ings-label{margin:14px 0 7px;font-size:11.5px;font-weight:800;color:var(--sub)}
+  .ings{display:flex;flex-wrap:wrap;gap:6px}
+  .ing-chip{
+    display:inline-flex;align-items:center;gap:5px;border:1px solid var(--lilac-200);
+    background:#fff;color:#5C4A78;border-radius:999px;padding:6px 10px;font-size:12.5px;
+    font-family:inherit;cursor:pointer;
+  }
+  .ing-chip:active{background:var(--lilac-100)}
+  .ing-chip .go{color:#B7A7D2;font-size:10px}
+
+  .memo{margin-top:12px}
+  .memo textarea, .edit-area{
+    width:100%;border:1px solid var(--line);border-radius:12px;padding:10px;
+    font-family:inherit;font-size:13.5px;line-height:1.55;color:var(--ink);
+    background:#FFFDF8;resize:vertical;
+  }
+  .memo textarea{min-height:48px}
+  .memo textarea::placeholder,.edit-area::placeholder{color:#B5AEC0}
+  .edit-area{min-height:96px}
+  .row-end{display:flex;justify-content:flex-end;gap:6px;margin-top:8px}
+
+  .btn{
+    font-family:inherit;font-size:12.5px;font-weight:800;border-radius:10px;padding:8px 13px;
+    border:1px solid var(--line);background:#fff;color:var(--sub);cursor:pointer;
+  }
+  .btn.primary{background:var(--lilac);border-color:var(--lilac);color:#fff}
+  .btn.soft{background:var(--lilac-100);border-color:var(--lilac-200);color:var(--lilac-deep)}
+  .btn:active{transform:scale(.98)}
+
+  .foot{margin:14px 18px 0;font-size:11.5px;color:#9C95A8;line-height:1.65}
+  .foot .reset{
+    font-family:inherit;font-size:12px;font-weight:800;color:#8C7B99;background:none;border:0;
+    border-bottom:1px solid #DCD3E4;padding:0 0 2px;cursor:pointer;margin-top:10px;
+  }
+
+  /* shop */
+  .summary{
+    margin:16px 14px 0;padding:16px;border-radius:18px;
+    background:linear-gradient(135deg,#8E6FC0 0%,#7B5AAE 60%,#6E52A2 100%);
+    color:#fff;box-shadow:0 8px 22px rgba(110,82,162,.22);
+  }
+  .summary .big{display:flex;align-items:baseline;gap:7px}
+  .summary .big strong{font-size:30px;line-height:1;letter-spacing:-.02em}
+  .summary .big span{font-size:13px;opacity:.9;font-weight:700}
+  .summary .split{display:flex;gap:14px;margin-top:12px;font-size:12px;opacity:.95;font-weight:700}
+  .summary .split i{font-style:normal;opacity:.75;margin-right:3px}
+  .bar{height:6px;border-radius:99px;background:rgba(255,255,255,.28);margin-top:12px;overflow:hidden}
+  .bar > span{display:block;height:100%;background:#F3E9FF;border-radius:99px;transition:width .25s ease}
+
+  .toolbar{margin:14px 14px 0;display:flex;gap:8px}
+  .add-form{display:flex;gap:8px;flex:1;min-width:0}
+  .add-form input{
+    flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+    font-family:inherit;font-size:14px;background:#fff;color:var(--ink);
+  }
+  .add-form input::placeholder{color:#B5AEC0}
+  .copy-btn{
+    font-family:inherit;font-size:12.5px;font-weight:800;white-space:nowrap;cursor:pointer;
+    border-radius:12px;padding:11px 13px;border:1px solid var(--lilac-200);
+    background:var(--lilac-100);color:var(--lilac-deep);
+  }
+
+  .cat{margin:14px 14px 0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+  .cat-head{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:12px 14px;background:#FCFAF5;border-bottom:1px solid var(--line);
+  }
+  .cat-head .name{font-size:13.5px;font-weight:800;color:#514963}
+  .cat-head .name em{font-style:normal;margin-right:5px}
+  .cat-head .cnt{font-size:11.5px;font-weight:800;color:#9C95A8}
+  .cat-head .cnt b{color:var(--lilac-deep);font-size:13px}
+
+  .items{list-style:none;margin:0;padding:0}
+  .item{padding:12px 14px;border-bottom:1px solid #F6F2EA}
+  .item:last-child{border-bottom:0}
+  .item.resolved{background:#FBFBF8}
+  .item-top{display:flex;align-items:flex-start;gap:8px;justify-content:space-between}
+  .item-name{flex:1;min-width:0;font-size:14.5px;font-weight:700;letter-spacing:-.01em;line-height:1.35;overflow-wrap:anywhere}
+  .item.resolved .item-name{text-decoration:line-through;color:#A9A2B4;text-decoration-thickness:1px}
+  .tags{display:flex;gap:4px;flex:0 0 auto;padding-top:1px}
+  .tag{
+    font-size:10px;font-weight:800;color:var(--lilac-deep);background:var(--lilac-100);
+    border-radius:6px;padding:2px 5px;line-height:1.4;
+  }
+  .item.resolved .tag{color:#ADA5B8;background:#F2EFF6}
+  .item-actions{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .pill{
+    font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:#6E6678;border-radius:999px;padding:6px 10px;
+  }
+  .pill.on.cart{background:var(--mint);border-color:var(--mint);color:#fff}
+  .pill.on.have{background:var(--sand);border-color:var(--sand);color:#fff}
+  .search-link{
+    margin-left:auto;font-size:11.5px;font-weight:800;color:var(--lilac-deep);
+    text-decoration:none;border-bottom:1px dotted #B7A7D2;padding-bottom:1px;white-space:nowrap;
+  }
+  .del{
+    font-family:inherit;border:1px solid var(--line);background:#fff;color:#B0A8BB;border-radius:8px;
+    width:26px;height:26px;line-height:1;font-size:14px;cursor:pointer;flex:0 0 auto;
+  }
+
+  .empty{padding:18px 14px;font-size:12.5px;color:#9C95A8;text-align:center}
+
+  #copyFallback{
+    margin:14px 14px 0;padding:12px;border:1px dashed var(--lilac-200);border-radius:14px;
+    background:#FCF9FF;font-size:12.5px;white-space:pre-wrap;word-break:break-all;
+    color:#544B63;font-family:inherit;
+  }
+  #copyFallback[hidden]{display:none}
+
+  /* tab bar */
+  .tabbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    display:flex;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:rgba(255,252,246,.94);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);
+  }
+  .tabbar-inner{display:flex;gap:6px;width:100%;max-width:460px;margin:0 auto}
+  .tab{
+    position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    border:0;background:none;border-radius:14px;padding:7px 0 6px;cursor:pointer;
+    font-family:inherit;font-size:11px;font-weight:800;color:var(--sub);
+  }
+  .tab .ic{font-size:19px;line-height:1}
+  .tab.active{color:var(--lilac-deep);background:var(--lilac-100)}
+  .badge{
+    position:absolute;top:3px;left:calc(50% + 6px);min-width:17px;height:17px;padding:0 4px;
+    display:grid;place-items:center;border-radius:999px;background:#E2705F;color:#fff;
+    font-size:10px;font-weight:800;line-height:1;
+  }
+  .badge[hidden]{display:none}
+
+  /* toast + modal */
+  .toast{
+    position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));z-index:60;
+    transform:translate(-50%,14px);opacity:0;pointer-events:none;
+    background:#3A3247;color:#fff;font-size:13px;font-weight:700;line-height:1.4;
+    padding:11px 16px;border-radius:14px;max-width:86vw;text-align:center;
+    transition:opacity .22s ease, transform .22s ease;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  /* 도우미 시트가 열려 있을 때는 위쪽에 띄워 시트 버튼을 가리지 않게 */
+  .toast.top{bottom:auto;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-14px)}
+  .toast.top.show{transform:translate(-50%,0)}
+  .modal{
+    position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;
+    padding:24px;background:rgba(46,36,60,.42);
+  }
+  .modal.show{display:flex}
+  .sheet{background:#fff;border-radius:20px;padding:20px;width:100%;max-width:340px;box-shadow:0 18px 40px rgba(40,30,60,.25)}
+  .sheet h2{margin:0 0 6px;font-size:16.5px;letter-spacing:-.01em}
+  .sheet p{margin:0;font-size:13.5px;color:var(--sub);line-height:1.6}
+  .sheet .row-end{margin-top:16px;gap:8px}
+  .sheet .btn{flex:1;padding:11px 0;font-size:13.5px}
+
+  /* recipe (tab 1) */
+  .menu-rows{margin:0 0 12px}
+  .menu-row{border:1px solid var(--line);border-radius:14px;margin-bottom:8px;overflow:hidden;background:#FFFDF8}
+  .menu-row:last-child{margin-bottom:0}
+  .menu-row.menu-open{border-color:var(--lilac-200);background:#fff}
+  .menu-row-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
+  .menu-row-head[data-action]{cursor:pointer}
+  .menu-item-dot{flex:0 0 auto;color:var(--lilac);font-size:11px;line-height:1.6}
+  .menu-row-name{flex:1;min-width:0;font-size:14.5px;font-weight:700;letter-spacing:-.01em;line-height:1.35;overflow-wrap:anywhere}
+  .recipe-btn{
+    flex:0 0 auto;font-family:inherit;font-size:11.5px;font-weight:800;cursor:pointer;white-space:nowrap;
+    border:1px solid var(--lilac-200);background:var(--lilac-100);color:var(--lilac-deep);
+    border-radius:999px;padding:6px 10px;
+  }
+  .recipe-btn:active{transform:scale(.97)}
+  .menu-row.menu-open .recipe-btn{background:var(--lilac);border-color:var(--lilac);color:#fff}
+  .recipe{border-top:1px dashed var(--line);padding:12px;background:#fff}
+  .recipe-meta{font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.01em}
+  .recipe-sec{margin-top:12px}
+  .recipe-sec > b{display:block;font-size:11.5px;color:var(--lilac-deep);margin-bottom:5px;letter-spacing:.01em}
+  .ing-lines{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.7;color:#4B4459}
+  .ing-lines li{display:flex;gap:7px;align-items:baseline}
+  .ing-lines .q{flex:0 0 auto;min-width:58px;color:var(--lilac-deep);font-weight:800;font-variant-numeric:tabular-nums}
+  .steps{list-style:none;margin:0;padding:0;counter-reset:step}
+  .steps li{position:relative;padding-left:22px;font-size:13px;line-height:1.65;color:#4B4459;margin-bottom:6px}
+  .steps li:last-child{margin-bottom:0}
+  .steps li:before{
+    counter-increment:step;content:counter(step);position:absolute;left:0;top:2px;
+    width:16px;height:16px;border-radius:50%;background:var(--lilac-100);color:var(--lilac-deep);
+    font-size:10px;font-weight:800;line-height:16px;text-align:center;
+  }
+  .baby-tip{background:#F4FBF7;border:1px solid #DCEEE4;border-radius:12px;padding:11px;font-size:12.5px;line-height:1.62;color:#38614F}
+  .baby-tip b{display:block;margin-bottom:3px;color:#2F7A5D;font-size:11.5px}
+  .recipe-none{font-size:12.5px;color:#9C95A8;padding:2px 0}
+
+  /* 참고 레시피 영상 링크 */
+  .video-link{
+    display:flex;align-items:center;gap:10px;margin-top:12px;padding:10px 12px;
+    border:1px solid #F3DBD3;border-radius:12px;background:#FFF7F3;
+    text-decoration:none;color:#5A4340;
+    transition:background .15s ease, transform .12s ease;
+  }
+  .video-link:active{background:#FCEBE3;transform:scale(.995)}
+  .video-link:focus-visible{outline:2px solid #D9705F;outline-offset:2px}
+  .vl-ico{
+    flex:0 0 auto;width:28px;height:28px;border-radius:9px;background:#E1584B;color:#fff;
+    display:grid;place-items:center;font-size:10.5px;line-height:1;padding-left:1px;
+    box-shadow:0 2px 6px rgba(190,70,55,.24);
+  }
+  .vl-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .vl-title{font-size:12.5px;font-weight:800;color:#8E3F35;letter-spacing:-.01em}
+  .vl-sub{font-size:11px;color:#9C7C74;line-height:1.45;overflow-wrap:anywhere}
+  .vl-go{flex:0 0 auto;color:#C9A79F;font-size:13px;font-weight:800}
+
+  /* helper sheet (tab 2) */
+  .helper-cta{
+    display:flex;align-items:center;gap:10px;width:calc(100% - 28px);margin:12px 14px 0;
+    font-family:inherit;text-align:left;cursor:pointer;
+    background:linear-gradient(135deg,#4F9B7E 0%,#3F8A6E 100%);color:#fff;
+    border:0;border-radius:16px;padding:13px 15px;box-shadow:0 6px 18px rgba(63,138,110,.22);
+  }
+  .helper-cta:active{transform:scale(.99)}
+  .helper-cta .hi{font-size:20px;line-height:1}
+  .helper-cta .ht{flex:1;min-width:0}
+  .helper-cta .ht b{display:block;font-size:14px;letter-spacing:-.01em}
+  .helper-cta .ht span{display:block;font-size:11.5px;font-weight:600;opacity:.93;margin-top:2px;line-height:1.45}
+  .helper-cta .go{flex:0 0 auto;font-size:16px;opacity:.8}
+  .modal.bottom{align-items:flex-end;padding:0}
+  .helper-sheet{
+    width:100%;max-width:480px;max-height:88vh;display:flex;flex-direction:column;
+    background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -12px 40px rgba(40,30,60,.25);
+  }
+  .helper-head{display:flex;align-items:flex-start;gap:10px;padding:18px 18px 12px;border-bottom:1px solid var(--line)}
+  .helper-head .tt{flex:1;min-width:0}
+  .helper-head h2{margin:0;font-size:17px;letter-spacing:-.01em}
+  .helper-head p{margin:5px 0 0;font-size:12.5px;color:var(--sub);line-height:1.5}
+  .helper-head .x{
+    flex:0 0 auto;font-family:inherit;border:0;background:#F4F1F8;color:#8C7B99;
+    width:30px;height:30px;border-radius:50%;font-size:15px;line-height:1;cursor:pointer;
+  }
+  .helper-body{padding:14px 18px calc(18px + env(safe-area-inset-bottom));overflow:auto;-webkit-overflow-scrolling:touch}
+  .helper-block{margin-bottom:18px}
+  .helper-block:last-child{margin-bottom:0}
+  .helper-block > h3{margin:0 0 8px;font-size:11.5px;font-weight:800;color:var(--sub);letter-spacing:.02em}
+  .handoff-btn{
+    display:block;width:100%;font-family:inherit;text-align:left;cursor:pointer;
+    border:1px solid var(--lilac-200);background:var(--lilac-100);color:var(--lilac-deep);
+    border-radius:14px;padding:13px 14px;
+  }
+  .handoff-btn:active{transform:scale(.99)}
+  .handoff-btn b{display:block;font-size:14px;letter-spacing:-.01em}
+  .handoff-btn span{display:block;font-size:11.5px;font-weight:600;margin-top:4px;color:#6E5A88;line-height:1.55}
+  .quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .quick-item{
+    display:flex;align-items:center;gap:7px;min-height:50px;padding:10px 11px;
+    font-family:inherit;font-size:13.5px;font-weight:700;line-height:1.3;text-align:left;
+    border:1px solid var(--lilac-200);background:#fff;color:#4B4459;border-radius:13px;
+    text-decoration:none;overflow-wrap:anywhere;
+  }
+  .quick-item:active{background:var(--lilac-100)}
+  .quick-item .qi-name{flex:1;min-width:0}
+  .quick-item .qi-go{flex:0 0 auto;font-size:11px;color:#B7A7D2;font-weight:800;white-space:nowrap}
+  .quick-item.opened{background:#F3F9F5;border-color:#CFE8DA;color:#3D6B58}
+  .quick-item.opened .qi-go{color:var(--mint)}
+  .quick-all{
+    width:100%;margin-top:8px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+    border:1px solid var(--line);background:#FCFAF5;color:#6E6678;border-radius:12px;padding:11px;
+  }
+  .quick-all:disabled{opacity:.5;cursor:default}
+  .helper-note{margin:9px 0 0;font-size:11px;color:#9C95A8;line-height:1.55}
+  .helper-empty{padding:16px;text-align:center;font-size:12.5px;color:#9C95A8;background:#FBFBF8;border-radius:12px}
+
+  @keyframes flash{
+    0%,100%{background:#fff}
+    20%,60%{background:#FFF3D9}
+  }
+  .flash{animation:flash 1.5s ease}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none!important;animation:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <div class="eyebrow">WEEKLY MEAL PLAN</div>
+    <h1>우리 집 5일 저녁 🍽️</h1>
+    <p class="sub">성인 2 · 곧 3돌 공주님 · 순한맛 위주</p>
+    <div class="chips">
+      <span class="chip plain" id="chipDays">평일 저녁 5일</span>
+      <span class="chip" id="chipDone">0/5일 완료</span>
+      <span class="chip" id="chipLeft">남은 재료 20개</span>
+    </div>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+  </header>
+
+  <!-- TAB 1 -->
+  <main class="view active" id="view-plan">
+    <div class="section-title">
+      <span>🍽️ 주간 식단</span>
+      <span class="right">카드를 눌러 펼치기 · 메뉴별 📖 레시피</span>
+    </div>
+    <div id="dayList"></div>
+    <p class="foot">
+      어른용으로는 쌈장·김치·고춧가루만 곁들이면 따로 두 번 요리하지 않아도 돼요.<br>
+      메뉴·메모·먹음 체크는 이 휴대폰에만 저장됩니다.
+      <br>
+      <span id="storageWarn" hidden style="color:#B4864F;font-weight:700">이 브라우저는 저장을 막아 두었어요. 화면을 닫으면 체크가 사라지니 크롬·사파리에서 열어 주세요.</span>
+      <br>
+      <button class="reset" type="button" data-action="reset">처음 상태로 초기화</button>
+    </p>
+  </main>
+
+  <!-- TAB 2 -->
+  <main class="view" id="view-shop">
+    <section class="summary" aria-live="polite">
+      <div class="big"><strong id="sumLeft">20</strong><span>개 더 사면 돼요</span></div>
+      <div class="split">
+        <span><i>🛒</i>담기 완료 <b id="sumCart">0</b></span>
+        <span><i>🏠</i>집에 있음 <b id="sumHave">0</b></span>
+        <span><i>🧾</i>전체 <b id="sumTotal">20</b></span>
+      </div>
+      <div class="bar"><span id="sumBar" style="width:0%"></span></div>
+    </section>
+
+    <button class="helper-cta" type="button" data-action="open-helper">
+      <span class="hi" aria-hidden="true">🛒</span>
+      <span class="ht">
+        <b>남은 재료 한 번에 담기 도우미</b>
+        <span id="helperCtaSub">남은 20개 · 용용이에게 맡기거나 하나씩 빠르게</span>
+      </span>
+      <span class="go" aria-hidden="true">›</span>
+    </button>
+
+    <div class="toolbar">
+      <form class="add-form" id="addForm" autocomplete="off">
+        <input id="addInput" type="text" maxlength="30" placeholder="없는 재료 직접 추가" aria-label="재료 직접 추가">
+        <button class="btn primary" type="submit">추가</button>
+      </form>
+      <button class="copy-btn" type="button" data-action="copy">남은 재료 복사</button>
+    </div>
+    <pre id="copyFallback" hidden></pre>
+
+    <div id="catList"></div>
+
+    <p class="foot">
+      ‘컬리 검색’을 누르면 네이버에서 ‘컬리 + 재료명’으로 찾아 줍니다. 가격·재고는 링크에서 확인해 주세요.<br>
+      집에 있는 재료는 ‘집에 있음’으로 바꾸면 목록에서 흐리게 정리돼요.<br>
+      ‘남은 재료 한 번에 담기 도우미’에서는 목록을 복사해 용용이에게 맡기거나, 굵은 버튼으로 하나씩 빠르게 열 수 있어요.
+      <br>
+      <button class="reset" type="button" data-action="reset">처음 상태로 초기화 (식단 포함)</button>
+    </p>
+  </main>
+
+  <nav class="tabbar">
+    <div class="tabbar-inner">
+      <button class="tab active" type="button" data-action="tab" data-tab="plan" id="tabPlan">
+        <span class="ic">🍽️</span><span>주간 식단</span>
+      </button>
+      <button class="tab" type="button" data-action="tab" data-tab="shop" id="tabShop">
+        <span class="ic">🛒</span><span>컬리 장보기</span>
+        <span class="badge" id="tabBadge">20</span>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <h2 id="modalTitle">처음 상태로 되돌릴까요?</h2>
+    <p id="modalBody">메뉴 수정, 메모, 먹음 체크, 장보기 체크가 모두 지워져요.</p>
+    <div class="row-end">
+      <button class="btn" type="button" data-action="modal-cancel">취소</button>
+      <button class="btn primary" type="button" data-action="modal-reset">초기화</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal bottom" id="helperModal" role="dialog" aria-modal="true" aria-labelledby="helperTitle">
+  <div class="helper-sheet">
+    <div class="helper-head">
+      <div class="tt">
+        <h2 id="helperTitle">🛒 남은 재료 담기 도우미</h2>
+        <p id="helperSub">남은 재료 20개</p>
+      </div>
+      <button class="x" type="button" data-action="helper-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="helper-body">
+      <div class="helper-block">
+        <h3>1 · 용용이에게 맡기기</h3>
+        <button class="handoff-btn" type="button" data-action="helper-copy">
+          <b>📋 남은 재료 복사하고 용용이에게 맡기기</b>
+          <span>복사한 목록을 채팅에 붙여넣고 “컬리 장바구니에 담아줘”라고 보내면, 제가 하나씩 찾아 담아 드려요.</span>
+        </button>
+      </div>
+      <div class="helper-block">
+        <h3>2 · 직접 하나씩 빠르게 담기</h3>
+        <div id="quickList"></div>
+        <button class="quick-all" type="button" data-action="helper-all" id="quickAllBtn">🗂 전체 탭으로 열기 · 남은 <span id="quickAllCount">20</span>개</button>
+        <p class="helper-note">휴대폰 브라우저는 한 번에 여러 탭 열기를 막는 경우가 있어요. 그때는 위 버튼을 하나씩 눌러 주세요. 누른 항목은 ‘열어봄’으로 표시돼요.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORE_KEY = 'weekly-meal-kurly.v1';
+  var NAVER_BASE = 'https://search.shopping.naver.com/search/all?query=';
+
+  var DAYS = [
+    {
+      key: 'mon', label: '월요일', short: '월',
+      items: ['소고기무국', '계란말이', '시금치나물'],
+      tip: '무는 푹 익혀 숟가락으로 으깨 주고 국물은 짜지 않게. 계란말이는 간장을 거의 빼고 한입 크기로, 시금치나물은 참기름만 살짝 두르고 참깨는 빼 주세요.'
+    },
+    {
+      key: 'tue', label: '화요일', short: '화',
+      items: ['간장 돼지불고기', '두부된장국', '양배추찜'],
+      tip: '돼지고기는 양념에 재우기 전에 아이 몫을 먼저 덜어 약한 간으로 익히고 잘게 찢어 주세요. 된장국은 국물을 조금만, 양배추찜은 잎을 돌돌 말아 한입 크기로.'
+    },
+    {
+      key: 'wed', label: '수요일', short: '수',
+      items: ['순한맛 카레라이스', '미역국'],
+      tip: '순한맛 카레도 아이 몫은 물이나 우유로 조금 묽게, 감자·당근은 으깨서 섞어 주세요. 미역국은 건더기보다 국물 위주로, 참기름 향은 약하게.'
+    },
+    {
+      key: 'thu', label: '목요일', short: '목',
+      items: ['순살 삼치구이', '순두부 계란국', '감자볶음'],
+      tip: '삼치는 순살이라도 잔가시를 한 번 더 확인하고 겉만 노릇하게 구워 속은 촉촉하게. 계란국은 계란을 풀어 부드럽게, 감자볶음은 기름을 적게 해 푹 익혀 주세요.'
+    },
+    {
+      key: 'fri', label: '금요일', short: '금',
+      items: ['유부초밥', '어묵우동'],
+      tip: '유부초밥은 아이 몫 유부를 짧게 데쳐 간을 빼고 2~3cm로 잘라 주세요. 어묵우동은 국물을 물로 조금 희석하고 어묵은 잘게, 우동 면은 숟가락으로 먹기 좋게 짧게 잘라 주세요.'
+    }
+  ];
+
+  /* 메뉴 이름으로 찾는 레시피 — 계량은 모두 어른 2 + 아기 1 기준 */
+  var RECIPES = {
+    '소고기무국': {
+      serve: '어른 2 + 아기 1', time: '약 25분',
+      yt: { id: 'U2k9O0I0048', ch: '김대석 셰프TV', note: '소고기무국 특급비법', len: '6:19' },
+      ings: [
+        ['한우 국거리', '200g'], ['무', '1/3개(300g)'], ['대파', '1대'],
+        ['물', '1.2L'], ['국간장', '1큰술'], ['참기름', '1작은술'], ['다진마늘', '1작은술']
+      ],
+      steps: [
+        '무는 2cm 네모로 도톰하게 썰고, 고기는 찬물에 10분 담가 핏물을 빼요.',
+        '냄비에 참기름 1작은술을 두르고 고기를 중불에서 3분 볶다가 물 1.2L를 붓고, 끓어오르면 거품을 걷어요.',
+        '무와 다진마늘을 넣고 중약불에서 15분, 무가 투명해질 때까지 끓여요.',
+        '국간장 1큰술과 대파를 넣고 한소끔 더 끓여 마무리해요.'
+      ],
+      baby: '3단계에서 국물 2국자와 무·고기를 먼저 덜어 국간장 없이 5분 더 끓여 주세요. 무는 숟가락으로 으깨고 고기는 결대로 잘게 찢어 주면 좋아요. 어른 국은 먹기 직전에 국간장·후추로 간을 더해요.'
+    },
+    '계란말이': {
+      serve: '어른 2 + 아기 1', time: '약 12분',
+      yt: { id: 'T7YJviWhquo', ch: '백종원', note: '정말 쉬운 달걀말이', len: '7:52' },
+      ings: [
+        ['계란', '4개'], ['물', '2큰술'], ['당근 다진 것', '1큰술'],
+        ['대파 다진 것', '1큰술'], ['소금', '2꼬집'], ['참기름', '약간']
+      ],
+      steps: [
+        '계란 4개를 풀어 물 2큰술과 소금 2꼬집을 넣고 체에 한 번 걸러요.',
+        '당근·대파 다진 것을 넣고 섞어요.',
+        '약한 불로 달군 팬에 참기름을 얇게 두르고 계란물 1/3을 부어, 가장자리가 반쯤 익으면 한쪽부터 말아요.',
+        '남은 계란물을 두 번에 나눠 붓고 말아 준 뒤 한 김 식혀 1.5cm 폭으로 썰어요.'
+      ],
+      baby: '간장은 넣지 않고 소금 2꼬집만 — 이 양이면 아기 몫까지 충분해요. 아기 몫은 속까지 완전히 익은 가운데 부분을 1cm 폭으로 잘라 주고, 어른은 케첩 대신 김치를 곁들여요.'
+    },
+    '시금치나물': {
+      serve: '어른 2 + 아기 1', time: '약 8분',
+      yt: { id: 'tD8ApzPsDx8', ch: '백종원', note: '삼색나물 · 시금치나물', len: '7:03' },
+      ings: [
+        ['시금치', '1단(250g)'], ['소금(데칠 때)', '1/3작은술'],
+        ['참기름', '1작은술'], ['통깨', '약간']
+      ],
+      steps: [
+        '시금치는 뿌리 끝을 다듬어 흐르는 물에 두 번 씻어요.',
+        '끓는 물에 소금 1/3작은술을 넣고 시금치를 30초만 데쳐요.',
+        '바로 찬물에 헹궈 물기를 꼭 짜고 4cm 길이로 썰어요.',
+        '참기름 1작은술로 조물조물 무치고, 통깨는 어른 그릇에만 뿌려요.'
+      ],
+      baby: '아기 몫은 참기름도 2~3방울만, 통깨는 빼요. 데친 시금치는 잘게 다져 밥에 섞어 주면 잘 먹어요. 데칠 때 쓴 소금은 버리고 헹구니 아기 간에는 거의 남지 않아요.'
+    },
+    '간장 돼지불고기': {
+      serve: '어른 2 + 아기 1', time: '약 25분(재우기 15분 포함)',
+      yt: { id: 'YV16QRDdQXE', ch: '하루한끼', note: '돼지 앞다리살 간장불고기', len: '3:01' },
+      ings: [
+        ['돼지불고기용', '300g'], ['양파', '1/2개'], ['애호박', '1/3개'],
+        ['간장', '2큰술'], ['설탕', '1큰술'], ['다진마늘', '1작은술'],
+        ['참기름', '1큰술'], ['물', '3큰술'], ['후추', '약간']
+      ],
+      steps: [
+        '양파는 0.5cm, 애호박은 반달 0.5cm로 썰어요.',
+        '간장 2큰술·설탕 1큰술·다진마늘·참기름 1큰술·물 3큰술을 섞어 양념을 만들어요.',
+        '고기 2/3만 양념에 15분 재워요. 아기 몫 1/3은 양념 없이 따로 두세요.',
+        '팬에 양념 고기와 채소를 넣고 중불에서 7~8분 볶고, 아기 몫은 물 2큰술에 간장 1/3작은술만 넣어 따로 볶아요.'
+      ],
+      baby: '아기 몫은 재우기 전에 먼저 덜어 두는 게 핵심이에요. 간장 1/3작은술로만 볶고 잘게 찢어 주세요. 어른 몫은 마지막에 후추·깨를 뿌리고, 남은 양념은 밥에 비벼도 좋아요.'
+    },
+    '두부된장국': {
+      serve: '어른 2 + 아기 1', time: '약 15분',
+      yt: { id: '3gGMu2pew6I', ch: '엄마의손맛', note: '기본 된장국 맛있게 끓이는 법', len: '5:04' },
+      ings: [
+        ['두부', '1/2모'], ['애호박', '1/4개'], ['양파', '1/4개'], ['대파', '1대'],
+        ['물', '800ml'], ['된장', '1.5큰술'], ['다진마늘', '1/2작은술']
+      ],
+      steps: [
+        '두부는 1.5cm 네모, 애호박·양파는 얇게, 대파는 송송 썰어요.',
+        '물 800ml에 된장 1.5큰술을 체에 걸러 풀고 끓여요.',
+        '애호박·양파를 넣어 5분, 두부를 넣고 3분 더 끓여요.',
+        '대파와 다진마늘을 넣고 한소끔 끓여 마무리해요.'
+      ],
+      baby: '아기 몫은 2단계 뒤에 두부·애호박을 건져 물 100ml에 된장 없이 3분 끓여 주세요. 국물은 2~3숟갈만, 건더기 위주로. 어른 국은 마지막에 된장·고춧가루를 조금 더해요.'
+    },
+    '양배추찜': {
+      serve: '어른 2 + 아기 1', time: '약 12분',
+      yt: { id: 'GvxRFmkMf4E', ch: '이 남자의 cook', note: '양배추 맛있게 찌는 법', len: '5:12' },
+      ings: [
+        ['양배추', '1/4통'], ['물', '100ml'],
+        ['쌈장(어른)', '1큰술'], ['참기름', '약간']
+      ],
+      steps: [
+        '양배추를 4cm 폭으로 썰어 겹겹이 씻어요.',
+        '팬에 양배추를 담고 물 100ml를 부은 뒤 뚜껑을 덮어 중불에서 6~7분 쪄요.',
+        '젓가락이 줄기까지 쑥 들어가면 불을 끄고 2분 뜸 들여요.',
+        '아기 몫은 잎을 돌돌 말아 2cm로 썰고, 어른은 쌈장에 참기름을 섞어 찍어 먹어요.'
+      ],
+      baby: '아기 몫은 간 없이 그대로, 줄기가 질기면 속잎만 골라 주세요. 쌈장은 아기 그릇에 묻지 않게 따로 담고, 접시도 따로 내요.'
+    },
+    '순한맛 카레라이스': {
+      serve: '어른 2 + 아기 1', time: '약 30분',
+      yt: { id: 'LTVxirHWvh8', ch: '백종원', note: '고기 듬뿍 뒷다리살 카레', len: '11:23' },
+      ings: [
+        ['소고기 국거리', '200g'], ['감자', '2개'], ['당근', '1/2개'], ['양파', '1개'],
+        ['순한맛 카레가루', '1/2봉(약 50g)'], ['물', '700ml'], ['우유', '50ml'], ['밥', '3공기']
+      ],
+      steps: [
+        '감자·당근·양파는 1.5cm로 깍둑 썰어요.',
+        '냄비에 기름 1큰술을 두르고 고기를 3분 볶다가 채소를 넣어 3분 더 볶아요.',
+        '물 700ml를 붓고 끓어오르면 중약불에서 15분, 채소가 무를 때까지 익혀요.',
+        '불을 줄이고 카레가루를 풀어 5분 끓인 뒤, 아기 몫은 먼저 덜어 우유 2큰술로 묽게 해요.'
+      ],
+      baby: '아기 몫은 카레가루를 넣기 전(3단계)에 건더기와 국물 2국자를 덜어 우유로 묽게 끓이는 게 가장 안전해요. 감자·당근은 으깨서 밥에 섞고 고기는 잘게 찢어 주세요. 어른 몫은 먹을 때 카레가루를 조금 더 풀어요.'
+    },
+    '미역국': {
+      serve: '어른 2 + 아기 1', time: '약 30분(불리기 10분 포함)',
+      yt: { id: 'xsTFsunt6-8', ch: '백종원', note: '소고기 미역국, 참기름에 볶아 끓이기', len: '10:11' },
+      ings: [
+        ['자른 미역', '10g(불린 뒤 60g)'], ['소고기 국거리', '100g'], ['물', '1L'],
+        ['국간장', '1큰술'], ['참기름', '1큰술'], ['다진마늘', '1/2작은술']
+      ],
+      steps: [
+        '미역은 찬물에 10분 불려 세 번 헹구고 물기를 짜서 3cm로 썰어요.',
+        '냄비에 참기름 1큰술을 두르고 고기를 2분 볶다가 미역을 넣어 3분 더 볶아요.',
+        '물 1L를 부어 끓어오르면 중약불에서 20분 끓여요.',
+        '국간장과 다진마늘로 간을 맞춰요.'
+      ],
+      baby: '3단계에서 국물 2국자와 미역·고기를 덜어 국간장 없이 5분 더 끓여 주세요. 미역은 잘게 다져 밥에 섞고 국물은 2~3숟갈만. 어른 국은 국간장을 조금 더해 간을 맞춰요.'
+    },
+    '순살 삼치구이': {
+      serve: '어른 2 + 아기 1', time: '약 20분',
+      yt: { id: 'C9d1b39fykA', ch: '딸을 위한 레시피', note: '겉바속촉 삼치구이 · 생선 굽는 법', len: '5:20' },
+      ings: [
+        ['순살 삼치', '2토막(300g)'], ['소금', '2꼬집'], ['후추', '약간'],
+        ['식용유', '1큰술'], ['레몬(선택)', '1조각']
+      ],
+      steps: [
+        '삼치는 키친타월로 물기를 꼭 닦고 손으로 훑어 잔가시를 확인해요.',
+        '소금 2꼬집을 양면에 뿌려 10분 두었다가 나온 물기를 다시 닦아요.',
+        '팬에 기름 1큰술을 두르고 껍질 쪽부터 중약불에서 4분, 뒤집어 3분 구워요.',
+        '한 김 식힌 뒤 아기 몫은 속을 한 번 더 확인하며 잘게 풀어요.'
+      ],
+      baby: '겉만 노릇하게, 속은 촉촉하게 익혀 아기가 씹기 쉽게 해요. 순살이라도 잔가시를 손으로 한 번 더 확인하고 1cm 크기로 부숴 주세요. 간장·레몬은 어른 몫에만 곁들여요.'
+    },
+    '순두부 계란국': {
+      serve: '어른 2 + 아기 1', time: '약 12분',
+      yt: { id: 'SgbK5INDgA8', ch: '딸을 위한 레시피', note: '5분 완성 몽글몽글 순두부계란탕', len: '3:35' },
+      ings: [
+        ['순두부', '1/2봉(150g)'], ['계란', '2개'], ['대파', '1/2대'],
+        ['물', '700ml'], ['국간장', '1작은술'], ['소금', '1꼬집'], ['참기름', '2~3방울']
+      ],
+      steps: [
+        '물 700ml를 끓이고 국간장 1작은술과 소금 1꼬집으로 간해요.',
+        '순두부를 숟가락으로 크게 떠 넣고 3분 끓여요.',
+        '계란을 풀어 천천히 둘러 넣고 1분 익힌 뒤 대파를 넣고 불을 꺼요.',
+        '참기름 2~3방울을 떨어뜨려 마무리해요.'
+      ],
+      baby: '아기 몫은 계란을 완전히 익혀 부드럽게, 순두부는 숟가락으로 잘게 떠서 건져 주세요. 국물은 조금만 담고 대파는 건져요. 간은 국간장 1작은술로 이미 충분하니 소금은 더 넣지 않아요.'
+    },
+    '감자볶음': {
+      serve: '어른 2 + 아기 1', time: '약 15분',
+      yt: { id: 'cMc1zyMw62E', ch: '김대석 셰프TV', note: '실패 없는 감자채볶음', len: '6:06' },
+      ings: [
+        ['감자', '2개(250g)'], ['양파', '1/4개'], ['당근', '2cm'],
+        ['식용유', '1큰술'], ['소금', '2꼬집'], ['통깨', '약간']
+      ],
+      steps: [
+        '감자는 0.5cm 채로 썰어 찬물에 5분 담가 전분을 빼고 물기를 닦아요.',
+        '팬에 기름 1큰술을 두르고 감자·당근을 중불에서 5분 볶아요.',
+        '양파와 물 2큰술을 넣고 뚜껑을 덮어 3분 더 익혀요.',
+        '소금 2꼬집으로 간하고 한 김 식힌 뒤 그릇에 담아요.'
+      ],
+      baby: '아기 몫은 3단계에서 2분 더 익혀 포크로 으깨지는 정도로 푹 익혀 주세요. 소금은 2꼬집만, 통깨는 빼요. 어른 몫은 먹을 때 통깨·후추를 뿌려요.'
+    },
+    '유부초밥': {
+      serve: '어른 2 + 아기 1', time: '약 20분',
+      yt: { id: 'TentD4SDYM8', ch: '엄마의손맛', note: '남녀노소 좋아하는 유부초밥 만들기', len: '4:06' },
+      ings: [
+        ['유부초밥 세트', '1봉(유부 8장+양념)'], ['밥', '2공기'],
+        ['당근 다진 것', '1큰술'], ['오이 다진 것', '1큰술(선택)'],
+        ['참기름', '약간'], ['통깨', '약간']
+      ],
+      steps: [
+        '밥 2공기에 세트 양념과 다진 당근·오이, 참기름 약간을 넣고 주걱으로 섞어요.',
+        '유부는 봉지째 뜨거운 물에 10초 데쳐 물기를 짜요.',
+        '유부 안에 밥을 2/3쯤 채우고 입구를 살짝 접어요.',
+        '깨를 뿌려 마무리하고, 아기 몫 유부는 따로 잘라 담아요.'
+      ],
+      baby: '아기 몫 유부는 뜨거운 물에 10초 데쳐 간을 빼고 2~3cm로 잘라 주세요. 밥은 평소보다 조금 무르게 지어 손으로 집어 먹기 좋게 하고, 밥을 채운 뒤 한입 크기로 다시 잘라도 좋아요.'
+    },
+    '어묵우동': {
+      serve: '어른 2 + 아기 1', time: '약 20분',
+      yt: { id: 'QU6SH-AfgQ4', ch: '하루한끼', note: '찬바람 불 때 어묵우동', len: '3:48' },
+      ings: [
+        ['우동사리', '2개'], ['어묵', '2장'], ['대파', '1대'], ['양파', '1/4개'],
+        ['물', '900ml'], ['국간장', '1큰술'], ['다시마(선택)', '1장']
+      ],
+      steps: [
+        '물 900ml에 다시마를 10분 담갔다가 끓기 직전에 건져요.',
+        '어묵을 삼각으로 썰어 넣고 5분 끓여 국물을 내요.',
+        '양파와 우동사리를 넣고 3분 끓인 뒤 국간장 1큰술로 간해요.',
+        '대파를 송송 썰어 올려 마무리해요.'
+      ],
+      baby: '아기 몫은 국물을 물로 1:1 희석하고, 우동 면은 숟가락으로 먹기 좋게 3cm로 잘라 주세요. 어묵은 나트륨이 높아 아기 몫은 1~2조각만 잘게 썰어 넣어요.'
+    }
+  };
+
+  var CATS = [
+    { key: 'meat', label: '정육·수산', emoji: '🥩' },
+    { key: 'veg', label: '채소', emoji: '🥬' },
+    { key: 'cold', label: '냉장·두부', emoji: '🥚' },
+    { key: 'dry', label: '실온·건어물', emoji: '🍥' },
+    { key: 'etc', label: '직접 추가', emoji: '✍️' }
+  ];
+
+  var ITEMS = [
+    { id: 'beef',     name: '한우 국거리',     q: '한우 국거리',      cat: 'meat', days: ['mon', 'wed'] },
+    { id: 'pork',     name: '돼지불고기용',    q: '돼지불고기용',     cat: 'meat', days: ['tue'] },
+    { id: 'fish',     name: '순살 삼치',       q: '순살 삼치',        cat: 'meat', days: ['thu'] },
+    { id: 'radish',   name: '무',              q: '무',               cat: 'veg',  days: ['mon'] },
+    { id: 'onion',    name: '양파',            q: '양파',             cat: 'veg',  days: ['tue', 'wed'] },
+    { id: 'potato',   name: '감자',            q: '감자',             cat: 'veg',  days: ['wed', 'thu'] },
+    { id: 'carrot',   name: '당근',            q: '당근',             cat: 'veg',  days: ['wed'] },
+    { id: 'zucchini', name: '애호박',          q: '애호박',           cat: 'veg',  days: ['tue'] },
+    { id: 'spinach',  name: '시금치',          q: '시금치',           cat: 'veg',  days: ['mon'] },
+    { id: 'cabbage',  name: '양배추',          q: '양배추',           cat: 'veg',  days: ['tue'] },
+    { id: 'leek',     name: '대파',            q: '대파',             cat: 'veg',  days: ['mon', 'thu', 'fri'] },
+    { id: 'mushroom', name: '버섯',            q: '버섯',             cat: 'veg',  days: ['thu'] },
+    { id: 'egg',      name: '계란',            q: '계란',             cat: 'cold', days: ['mon', 'thu'] },
+    { id: 'tofu',     name: '두부',            q: '두부',             cat: 'cold', days: ['tue'] },
+    { id: 'sundubu',  name: '순두부',          q: '순두부',           cat: 'cold', days: ['thu'] },
+    { id: 'yubu',     name: '유부초밥 세트',   q: '유부초밥 세트',    cat: 'cold', days: ['fri'] },
+    { id: 'eomuk',    name: '어묵',            q: '어묵',             cat: 'cold', days: ['fri'] },
+    { id: 'udon',     name: '우동사리',        q: '우동사리',         cat: 'cold', days: ['fri'] },
+    { id: 'curry',    name: '순한맛 카레가루', q: '순한맛 카레',      cat: 'dry',  days: ['wed'] },
+    { id: 'miyeok',   name: '자른 미역',       q: '자른 미역',        cat: 'dry',  days: ['wed'] }
+  ];
+
+  /* ---------- state ---------- */
+  function defaults() {
+    var menus = {};
+    DAYS.forEach(function (d) {
+      menus[d.key] = { items: d.items.slice(), memo: '', done: false };
+    });
+    return { v: 1, tab: 'plan', menus: menus, shop: {}, custom: [] };
+  }
+
+  function load() {
+    var base = defaults();
+    var raw = null;
+    try { raw = window.localStorage.getItem(STORE_KEY); } catch (e) { raw = null; }
+    if (!raw) return base;
+    var saved;
+    try { saved = JSON.parse(raw); } catch (e) { return base; }
+    if (!saved || typeof saved !== 'object') return base;
+    if (saved.tab === 'shop' || saved.tab === 'plan') base.tab = saved.tab;
+    if (saved.menus && typeof saved.menus === 'object') {
+      DAYS.forEach(function (d) {
+        var m = saved.menus[d.key];
+        if (!m || typeof m !== 'object') return;
+        if (Array.isArray(m.items)) {
+          var items = m.items.filter(function (x) { return typeof x === 'string' && x.trim(); })
+            .map(function (x) { return x.trim(); });
+          if (items.length) base.menus[d.key].items = items;
+        }
+        if (typeof m.memo === 'string') base.menus[d.key].memo = m.memo.slice(0, 300);
+        base.menus[d.key].done = !!m.done;
+      });
+    }
+    if (saved.shop && typeof saved.shop === 'object') {
+      Object.keys(saved.shop).forEach(function (k) {
+        var v = saved.shop[k];
+        if (v === 'cart' || v === 'have') base.shop[k] = v;
+      });
+    }
+    if (Array.isArray(saved.custom)) {
+      base.custom = saved.custom.filter(function (c) { return c && typeof c.name === 'string' && c.name.trim(); })
+        .slice(0, 60)
+        .map(function (c) {
+          return { id: String(c.id || uid()), name: c.name.trim().slice(0, 30) };
+        });
+    }
+    return base;
+  }
+
+  var state = load();
+  var openDay = null;
+  var editDay = null;
+  var openRecipe = {};      /* dayKey -> 펼친 메뉴 이름 */
+  var openedQuick = {};     /* 도우미에서 이미 연 재료 id */
+  var toastTimer = null;
+
+  function uid() {
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  function save() {
+    try { window.localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
+  }
+
+  function storageWorks() {
+    try {
+      window.localStorage.setItem('__wmk_test', '1');
+      window.localStorage.removeItem('__wmk_test');
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function dayLabel(keys) {
+    return keys.map(function (k) {
+      for (var i = 0; i < DAYS.length; i++) if (DAYS[i].key === k) return DAYS[i].short;
+      return k;
+    }).join('·');
+  }
+
+  function allItems() {
+    var list = ITEMS.map(function (it) {
+      return { id: it.id, name: it.name, q: it.q, cat: it.cat, days: it.days, custom: false };
+    });
+    state.custom.forEach(function (c) {
+      list.push({ id: c.id, name: c.name, q: c.name, cat: 'etc', days: [], custom: true });
+    });
+    return list;
+  }
+
+  function searchUrl(q) {
+    return NAVER_BASE + encodeURIComponent('컬리 ' + q);
+  }
+
+  function counts() {
+    var all = allItems();
+    var cart = 0, have = 0;
+    all.forEach(function (it) {
+      if (state.shop[it.id] === 'cart') cart++;
+      else if (state.shop[it.id] === 'have') have++;
+    });
+    return { total: all.length, cart: cart, have: have, left: all.length - cart - have };
+  }
+
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.toggle('top', $('helperModal').classList.contains('show'));
+    t.classList.add('show');
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(function () { t.classList.remove('show'); }, 2300);
+  }
+
+  function todayKey() {
+    var idx = new Date().getDay();
+    var keys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    var k = keys[idx];
+    for (var i = 0; i < DAYS.length; i++) if (DAYS[i].key === k) return k;
+    return null;
+  }
+
+  /* ---------- render: header ---------- */
+  function renderHead() {
+    var c = counts();
+    var doneCount = DAYS.filter(function (d) { return state.menus[d.key].done; }).length;
+    $('chipDone').textContent = doneCount + '/5일 완료';
+    $('chipLeft').textContent = '남은 재료 ' + c.left + '개';
+    $('dots').innerHTML = DAYS.map(function (d) {
+      return '<i class="' + (state.menus[d.key].done ? 'on' : '') + '"></i>';
+    }).join('');
+    var badge = $('tabBadge');
+    badge.textContent = String(c.left);
+    if (c.left === 0) badge.hidden = true; else badge.hidden = false;
+    $('helperCtaSub').textContent = c.left
+      ? '남은 ' + c.left + '개 · 용용이에게 맡기거나 하나씩 빠르게'
+      : '남은 재료 없음 · 장보기 끝! 🎉';
+  }
+
+  /* ---------- render: plan ---------- */
+  function renderPlan() {
+    var tk = todayKey();
+    $('dayList').innerHTML = DAYS.map(function (d) {
+      var m = state.menus[d.key];
+      var isOpen = openDay === d.key;
+      var isToday = tk === d.key;
+      var cls = 'day';
+      if (isOpen) cls += ' open';
+      if (m.done) cls += ' done';
+      if (isToday) cls += ' today';
+
+      var head = ''
+        + '<div class="day-head" role="button" tabindex="0" data-action="toggle-day" data-day="' + d.key + '" aria-expanded="' + (isOpen ? 'true' : 'false') + '">'
+        +   '<span class="day-badge">' + d.short + '</span>'
+        +   '<span class="day-main">'
+        +     '<span class="day-name">' + d.label + (isToday ? '<span class="now">오늘</span>' : '') + '</span>'
+        +     '<span class="day-menu">' + esc(m.items.join(' · ')) + '</span>'
+        +   '</span>'
+        +   '<button class="check' + (m.done ? ' on' : '') + '" type="button" data-action="toggle-done" data-day="' + d.key + '"'
+        +     ' aria-pressed="' + (m.done ? 'true' : 'false') + '" aria-label="' + d.label + ' 먹음 체크">✓</button>'
+        +   '<span class="chev" aria-hidden="true">▼</span>'
+        + '</div>';
+
+      var body = '';
+      if (isOpen) {
+        var ingKeys = ITEMS.filter(function (it) { return it.days.indexOf(d.key) !== -1; });
+
+        var menuBlock;
+        if (editDay === d.key) {
+          menuBlock = ''
+            + '<textarea class="edit-area" data-edit="' + d.key + '" aria-label="' + d.label + ' 메뉴 수정">'
+            + esc(m.items.join('\n'))
+            + '</textarea>'
+            + '<div class="row-end">'
+            +   '<button class="btn" type="button" data-action="cancel-edit">취소</button>'
+            +   '<button class="btn primary" type="button" data-action="save-menu" data-day="' + d.key + '">저장</button>'
+            + '</div>';
+        } else {
+          menuBlock = ''
+            + '<div class="menu-rows">'
+            + m.items.map(function (x) { return menuRowHtml(d.key, x); }).join('')
+            + '</div>'
+            + '<div class="row-end"><button class="btn soft" type="button" data-action="edit-menu" data-day="' + d.key + '">✏️ 메뉴 수정</button></div>';
+        }
+
+        body = ''
+          + '<div class="day-body">'
+          +   menuBlock
+          +   '<div class="tip"><b>🧸 아이와 함께 먹는 팁</b>' + esc(d.tip) + '</div>'
+          +   '<div class="ings-label">필요한 재료 · 누르면 장보기 목록으로</div>'
+          +   '<div class="ings">'
+          +     ingKeys.map(function (it) {
+                return '<button class="ing-chip" type="button" data-action="jump" data-id="' + it.id + '">'
+                  + esc(it.name) + '<span class="go">↗</span></button>';
+              }).join('')
+          +   '</div>'
+          +   '<div class="memo"><textarea data-memo="' + d.key + '" maxlength="300" placeholder="메모 (예: 무를 잘 먹음 · 다음엔 간장 조금만)">'
+          +     esc(m.memo) + '</textarea></div>'
+          + '</div>';
+      }
+
+      return '<article class="' + cls + '" id="day-' + d.key + '">' + head + body + '</article>';
+    }).join('');
+  }
+
+  /* ---------- render: recipe rows ---------- */
+  function recipeOf(name) {
+    var key = String(name || '').replace(/\s+/g, ' ').trim();
+    return RECIPES[key] || null;
+  }
+
+  /* 참고 레시피 영상 링크 — 유튜브 실제 영상만 넣습니다 */
+  function videoHtml(r) {
+    var v = r && r.yt;
+    if (!v || !v.id) return '';
+    var url = 'https://www.youtube.com/watch?v=' + encodeURIComponent(v.id);
+    var sub = v.ch + (v.note ? ' · ' + v.note : '') + (v.len ? ' · ' + v.len : '');
+    return ''
+      + '<a class="video-link" href="' + url + '" target="_blank" rel="noopener noreferrer"'
+      +   ' aria-label="' + esc('참고 레시피 영상 보기 — ' + sub + ' (유튜브, 새 창)') + '">'
+      +   '<span class="vl-ico" aria-hidden="true">▶</span>'
+      +   '<span class="vl-body">'
+      +     '<span class="vl-title">참고 레시피 영상 보기</span>'
+      +     '<span class="vl-sub">' + esc(sub) + '</span>'
+      +   '</span>'
+      +   '<span class="vl-go" aria-hidden="true">↗</span>'
+      + '</a>';
+  }
+
+  function recipeHtml(r) {
+    return ''
+      + '<div class="recipe-meta">🍽 ' + esc(r.serve) + ' · ⏱ ' + esc(r.time) + '</div>'
+      + '<div class="recipe-sec"><b>재료 계량</b><ul class="ing-lines">'
+      +   r.ings.map(function (p) {
+            return '<li><span class="q">' + esc(p[1]) + '</span><span>' + esc(p[0]) + '</span></li>';
+          }).join('')
+      + '</ul></div>'
+      + '<div class="recipe-sec"><b>조리 순서</b><ol class="steps">'
+      +   r.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('')
+      + '</ol></div>'
+      + '<div class="recipe-sec"><div class="baby-tip"><b>🧸 아기 몫 덜어내기 · 간 조절</b>' + esc(r.baby) + '</div></div>'
+      + videoHtml(r);
+  }
+
+  function menuRowHtml(dayKey, name) {
+    var r = recipeOf(name);
+    var isOpen = !!(r && openRecipe[dayKey] === name);
+    return ''
+      + '<div class="menu-row' + (isOpen ? ' menu-open' : '') + '">'
+      +   '<div class="menu-row-head"' + (r ? ' data-action="toggle-recipe" data-day="' + dayKey + '" data-menu="' + esc(name) + '"' : '') + '>'
+      +     '<span class="menu-item-dot" aria-hidden="true">●</span>'
+      +     '<span class="menu-row-name">' + esc(name) + '</span>'
+      +     (r ? '<button class="recipe-btn" type="button" data-action="toggle-recipe" data-day="' + dayKey + '" data-menu="' + esc(name) + '"'
+              + ' aria-expanded="' + (isOpen ? 'true' : 'false') + '">'
+              + (isOpen ? '📖 접기' : '📖 레시피 보기') + '</button>' : '')
+      +   '</div>'
+      +   (isOpen ? '<div class="recipe">' + recipeHtml(r) + '</div>' : '')
+      + '</div>';
+  }
+
+  function toggleRecipe(dayKey, name) {
+    if (openRecipe[dayKey] === name) delete openRecipe[dayKey];
+    else openRecipe[dayKey] = name;
+    renderPlan();
+  }
+
+  /* ---------- render: shop ---------- */
+  function renderShop() {
+    var all = allItems();
+    var c = counts();
+    $('sumLeft').textContent = String(c.left);
+    $('sumCart').textContent = String(c.cart);
+    $('sumHave').textContent = String(c.have);
+    $('sumTotal').textContent = String(c.total);
+    $('sumBar').style.width = (c.total ? Math.round(((c.cart + c.have) / c.total) * 100) : 0) + '%';
+
+    var html = CATS.map(function (cat) {
+      var items = all.filter(function (it) { return it.cat === cat.key; });
+      if (!items.length) return '';
+
+      var open = items.filter(function (it) { return !state.shop[it.id]; });
+      var closed = items.filter(function (it) { return !!state.shop[it.id]; });
+      var ordered = open.concat(closed);
+
+      return ''
+        + '<section class="cat" aria-label="' + cat.label + '">'
+        +   '<div class="cat-head">'
+        +     '<span class="name"><em aria-hidden="true">' + cat.emoji + '</em>' + cat.label + '</span>'
+        +     '<span class="cnt"><b>' + open.length + '</b> / ' + items.length + ' 남음</span>'
+        +   '</div>'
+        +   '<ul class="items">' + ordered.map(itemHtml).join('') + '</ul>'
+        + '</section>';
+    }).join('');
+
+    $('catList').innerHTML = html || '<p class="empty">재료가 없어요. 위에서 직접 추가해 보세요.</p>';
+  }
+
+  function itemHtml(it) {
+    var st = state.shop[it.id] || '';
+    var resolved = st === 'cart' || st === 'have';
+    var tags = it.days.length
+      ? '<span class="tags">' + it.days.map(function (k) { return '<span class="tag">' + dayLabel([k]) + '</span>'; }).join('') + '</span>'
+      : (it.custom ? '<span class="tags"><span class="tag">직접</span></span>' : '');
+
+    return ''
+      + '<li class="item' + (resolved ? ' resolved' : '') + '" id="item-' + it.id + '">'
+      +   '<div class="item-top">'
+      +     '<span class="item-name">' + esc(it.name) + '</span>'
+      +     tags
+      +   '</div>'
+      +   '<div class="item-actions">'
+      +     '<button class="pill cart' + (st === 'cart' ? ' on' : '') + '" type="button" data-action="set-state" data-id="' + it.id + '" data-state="cart"'
+      +       ' aria-pressed="' + (st === 'cart' ? 'true' : 'false') + '">🛒 담기 완료</button>'
+      +     '<button class="pill have' + (st === 'have' ? ' on' : '') + '" type="button" data-action="set-state" data-id="' + it.id + '" data-state="have"'
+      +       ' aria-pressed="' + (st === 'have' ? 'true' : 'false') + '">🏠 집에 있음</button>'
+      +     '<a class="search-link" href="' + searchUrl(it.q) + '" target="_blank" rel="noopener noreferrer">컬리 검색 ↗</a>'
+      +     (it.custom ? '<button class="del" type="button" data-action="del-custom" data-id="' + it.id + '" aria-label="' + esc(it.name) + ' 삭제">×</button>' : '')
+      +   '</div>'
+      + '</li>';
+  }
+
+  function setCurrent(el, on) {
+    if (on) el.setAttribute('aria-current', 'page');
+    else el.removeAttribute('aria-current');
+  }
+
+  function render() {
+    renderHead();
+    renderPlan();
+    renderShop();
+    $('tabPlan').classList.toggle('active', state.tab === 'plan');
+    $('tabShop').classList.toggle('active', state.tab === 'shop');
+    setCurrent($('tabPlan'), state.tab === 'plan');
+    setCurrent($('tabShop'), state.tab === 'shop');
+    $('view-plan').classList.toggle('active', state.tab === 'plan');
+    $('view-shop').classList.toggle('active', state.tab === 'shop');
+  }
+
+  /* ---------- actions ---------- */
+  function toggleDay(key) {
+    openDay = openDay === key ? null : key;
+    if (editDay && editDay !== openDay) editDay = null;
+    render();
+  }
+
+  function toggleDone(key) {
+    state.menus[key].done = !state.menus[key].done;
+    save();
+    render();
+    var label = '';
+    DAYS.forEach(function (d) { if (d.key === key) label = d.label; });
+    toast(state.menus[key].done ? label + ' 식단 완료로 체크했어요' : label + ' 체크를 풀었어요');
+  }
+
+  function saveMenu(key) {
+    var area = document.querySelector('[data-edit="' + key + '"]');
+    if (!area) return;
+    var items = area.value.split('\n')
+      .map(function (s) { return s.replace(/\s+/g, ' ').trim(); })
+      .filter(Boolean)
+      .slice(0, 8);
+    if (!items.length) { toast('메뉴를 한 줄 이상 적어 주세요'); return; }
+    state.menus[key].items = items;
+    editDay = null;
+    save();
+    render();
+    toast('메뉴를 저장했어요');
+  }
+
+  function jumpToItem(id) {
+    state.tab = 'shop';
+    save();
+    render();
+    window.scrollTo(0, 0);
+    var row = $('item-' + id);
+    if (!row) return;
+    window.setTimeout(function () {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.classList.add('flash');
+      window.setTimeout(function () { row.classList.remove('flash'); }, 1600);
+    }, 60);
+  }
+
+  function setShopState(id, next) {
+    var cur = state.shop[id] || '';
+    if (cur === next) delete state.shop[id];
+    else state.shop[id] = next;
+    save();
+    render();
+  }
+
+  function addCustom(name) {
+    var clean = String(name || '').replace(/\s+/g, ' ').trim().slice(0, 30);
+    if (!clean) { toast('재료 이름을 적어 주세요'); return; }
+    var dup = allItems().some(function (it) { return it.name === clean; });
+    if (dup) { toast('이미 목록에 있는 재료예요'); return; }
+    state.custom.push({ id: uid(), name: clean });
+    save();
+    render();
+    toast('‘' + clean + '’ 추가했어요');
+  }
+
+  function buildCopyText() {
+    var all = allItems().filter(function (it) { return !state.shop[it.id]; });
+    if (!all.length) return '';
+    var lines = ['🛒 컬리 장보기 · 남은 재료 ' + all.length + '개', ''];
+    CATS.forEach(function (cat) {
+      var items = all.filter(function (it) { return it.cat === cat.key; });
+      if (!items.length) return;
+      lines.push('[' + cat.label + ']');
+      items.forEach(function (it) {
+        lines.push('· ' + it.name + (it.days.length ? ' (' + dayLabel(it.days) + ')' : ''));
+      });
+      lines.push('');
+    });
+    return lines.join('\n').trim();
+  }
+
+  function remainingItems() {
+    return allItems().filter(function (it) { return !state.shop[it.id]; });
+  }
+
+  function writeClipboard(text, ok, fail) {
+    function tryLegacy() { legacyCopy(text) ? ok() : fail(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try { navigator.clipboard.writeText(text).then(ok, tryLegacy); }
+      catch (e) { tryLegacy(); }
+    } else {
+      tryLegacy();
+    }
+  }
+
+  function showFallback(text) {
+    var fallback = $('copyFallback');
+    fallback.hidden = false;
+    fallback.textContent = text;
+    fallback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function copyRemaining() {
+    var text = buildCopyText();
+    if (!text) { toast('남은 재료가 없어요. 장보기 끝! 🎉'); return; }
+    $('copyFallback').hidden = true;
+    writeClipboard(text,
+      function () { toast('남은 재료 ' + remainingItems().length + '개를 복사했어요'); },
+      function () {
+        showFallback(text);
+        toast('복사가 막혔어요. 아래 목록을 길게 눌러 복사해 주세요');
+      });
+  }
+
+  /* 남은 재료를 복사해 채팅으로 넘기는 길 — 용용이가 대신 담아 줌 */
+  function copyForHelper() {
+    var left = remainingItems();
+    if (!left.length) { toast('남은 재료가 없어요. 장보기 끝! 🎉'); return; }
+    var text = buildCopyText() + '\n\n용용이, 이 재료들 컬리 장바구니에 담아줘.';
+    $('copyFallback').hidden = true;
+    writeClipboard(text,
+      function () { toast('복사했어요. 채팅에 붙여넣어 보내 주세요'); },
+      function () {
+        $('helperModal').classList.remove('show');
+        showFallback(text);
+        toast('복사가 막혔어요. 아래 목록을 길게 눌러 복사해 주세요');
+      });
+  }
+
+  /* ---------- 담기 도우미 ---------- */
+  function renderHelper() {
+    var left = remainingItems();
+    $('helperSub').textContent = left.length ? '남은 재료 ' + left.length + '개' : '남은 재료가 없어요';
+    $('quickAllCount').textContent = String(left.length);
+    $('quickAllBtn').disabled = !left.length;
+
+    if (!left.length) {
+      $('quickList').innerHTML = '<p class="helper-empty">남은 재료가 없어요. 장보기 끝! 🎉</p>';
+      return;
+    }
+
+    $('quickList').innerHTML = '<div class="quick-grid">' + left.map(function (it) {
+      var opened = !!openedQuick[it.id];
+      return '<a class="quick-item' + (opened ? ' opened' : '') + '"'
+        + ' href="' + searchUrl(it.q) + '" target="_blank" rel="noopener noreferrer"'
+        + ' data-action="quick-open" data-id="' + it.id + '">'
+        + '<span class="qi-name">' + esc(it.name) + '</span>'
+        + '<span class="qi-go">' + (opened ? '열어봄 ✓' : '↗') + '</span></a>';
+    }).join('') + '</div>';
+  }
+
+  function openHelper() {
+    renderHelper();
+    $('helperModal').classList.add('show');
+  }
+
+  function markOpened(el) {
+    var id = el.getAttribute('data-id');
+    if (!id) return;
+    openedQuick[id] = true;
+    el.classList.add('opened');
+    var go = el.querySelector('.qi-go');
+    if (go) go.textContent = '열어봄 ✓';
+  }
+
+  function openAllTabs() {
+    var left = remainingItems();
+    if (!left.length) { toast('남은 재료가 없어요'); return; }
+    var opened = 0, blocked = 0;
+    left.forEach(function (it) {
+      var w = null;
+      try { w = window.open(searchUrl(it.q), '_blank'); } catch (e) { w = null; }
+      if (w) { openedQuick[it.id] = true; opened++; } else { blocked++; }
+    });
+    renderHelper();
+    if (blocked) toast('팝업이 막혀 ' + opened + '개만 열렸어요. 위 버튼을 하나씩 눌러 주세요');
+    else toast('남은 재료 ' + opened + '개를 새 탭으로 열었어요');
+  }
+
+  function legacyCopy(text) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      var done = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return done;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function setTab(tab) {
+    state.tab = tab;
+    save();
+    render();
+    if (tab === 'shop') window.scrollTo(0, 0);
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', function (ev) {
+    var el = ev.target.closest ? ev.target.closest('[data-action]') : null;
+    if (!el) return;
+    var action = el.getAttribute('data-action');
+
+    if (action === 'tab') { setTab(el.getAttribute('data-tab')); return; }
+    if (action === 'toggle-day') { toggleDay(el.getAttribute('data-day')); return; }
+    if (action === 'toggle-done') {
+      ev.preventDefault();
+      ev.stopPropagation();
+      toggleDone(el.getAttribute('data-day'));
+      return;
+    }
+    if (action === 'edit-menu') {
+      editDay = el.getAttribute('data-day');
+      openDay = editDay;
+      render();
+      var area = document.querySelector('[data-edit="' + editDay + '"]');
+      if (area) { area.focus(); }
+      return;
+    }
+    if (action === 'cancel-edit') { editDay = null; render(); return; }
+    if (action === 'save-menu') { saveMenu(el.getAttribute('data-day')); return; }
+    if (action === 'jump') { ev.preventDefault(); jumpToItem(el.getAttribute('data-id')); return; }
+    if (action === 'set-state') {
+      setShopState(el.getAttribute('data-id'), el.getAttribute('data-state'));
+      return;
+    }
+    if (action === 'del-custom') {
+      var id = el.getAttribute('data-id');
+      state.custom = state.custom.filter(function (c) { return c.id !== id; });
+      delete state.shop[id];
+      save();
+      render();
+      toast('재료를 지웠어요');
+      return;
+    }
+    if (action === 'toggle-recipe') {
+      ev.preventDefault();
+      toggleRecipe(el.getAttribute('data-day'), el.getAttribute('data-menu'));
+      return;
+    }
+    if (action === 'copy') { copyRemaining(); return; }
+    if (action === 'open-helper') { openHelper(); return; }
+    if (action === 'helper-close') { $('helperModal').classList.remove('show'); return; }
+    if (action === 'helper-copy') { copyForHelper(); return; }
+    if (action === 'helper-all') { openAllTabs(); return; }
+    if (action === 'quick-open') { markOpened(el); return; }
+    if (action === 'reset') {
+      $('modal').classList.add('show');
+      return;
+    }
+    if (action === 'modal-cancel') { $('modal').classList.remove('show'); return; }
+    if (action === 'modal-reset') {
+      state = defaults();
+      openDay = todayKey();
+      editDay = null;
+      try { window.localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
+      $('modal').classList.remove('show');
+      $('copyFallback').hidden = true;
+      render();
+      toast('처음 상태로 되돌렸어요');
+      return;
+    }
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    var el = ev.target;
+    if (el && el.classList && el.classList.contains('day-head') && (ev.key === 'Enter' || ev.key === ' ')) {
+      ev.preventDefault();
+      toggleDay(el.getAttribute('data-day'));
+      return;
+    }
+    if (ev.key === 'Escape') {
+      if ($('helperModal').classList.contains('show')) { $('helperModal').classList.remove('show'); return; }
+      if ($('modal').classList.contains('show')) { $('modal').classList.remove('show'); return; }
+      if (editDay) { editDay = null; render(); }
+    }
+  });
+
+  document.addEventListener('input', function (ev) {
+    var el = ev.target;
+    if (el && el.hasAttribute && el.hasAttribute('data-memo')) {
+      var key = el.getAttribute('data-memo');
+      if (state.menus[key]) {
+        state.menus[key].memo = el.value.slice(0, 300);
+        save();
+      }
+    }
+  });
+
+  $('addForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var input = $('addInput');
+    addCustom(input.value);
+    input.value = '';
+    input.focus();
+  });
+
+  $('modal').addEventListener('click', function (ev) {
+    if (ev.target === $('modal')) $('modal').classList.remove('show');
+  });
+
+  $('helperModal').addEventListener('click', function (ev) {
+    if (ev.target === $('helperModal')) $('helperModal').classList.remove('show');
+  });
+
+  /* ---------- boot ---------- */
+  var tk = todayKey();
+  openDay = tk || null;
+  if (!storageWorks()) $('storageWarn').hidden = false;
+  render();
+})();
+</script>
+</body>
+</html>
