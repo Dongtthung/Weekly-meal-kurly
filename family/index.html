@@ -7,7 +7,7 @@
 <meta name="color-scheme" content="light">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="description" content="우리 가족 대시보드 — 가족별 오늘 위치·개인 일정, 다가오는 가족 일정과 D-day, 이번 주 식단, 동네 날씨, 공용 할 일·메모를 한 화면에서.">
+<meta name="description" content="우리 가족 대시보드 — 가족별 오늘 위치·개인 일정, 다가오는 가족 일정과 D-day, 동네 날씨, 공용 할 일·메모, 여러 장 가족 사진 액자를 한 화면에서.">
 <title>우리 가족 대시보드</title>
 <style>
   /* ============ base · 하츄핑 핑크 테마 ============ */
@@ -215,10 +215,9 @@
   @media (max-width:767px){
     #secFamily{order:1}
     #secEvents{order:2}
-    #secMeal{order:3}
-    #secPhoto{order:4}
-    #secTodo{order:5}
-    #secMemo{order:6}
+    #secTodo{order:3}
+    #secMemo{order:4}
+    #secPhoto{order:5}
   }
 
   /* ============ member cards ============ */
@@ -436,25 +435,7 @@
   .form-actions{display:flex;gap:7px;margin-top:2px}
   .form-actions .btn{flex:1 1 0}
 
-  /* ============ meal & weather ============ */
-  .meal-card{padding:14px;overflow:hidden}
-  .meal-card::after{
-    content:"";position:absolute;right:-16px;top:-18px;width:74px;height:74px;border-radius:50%;pointer-events:none;
-    background:radial-gradient(circle at 40% 40%,rgba(255,205,228,.6) 0%,rgba(255,205,228,0) 72%);
-  }
-  .meal-top{display:flex;gap:11px;align-items:flex-start;position:relative;z-index:1}
-  .meal-ic{flex:0 0 auto;width:44px;height:44px;border-radius:15px;
-    background:linear-gradient(160deg,#FFE7C9 0%,#FFD9E8 100%);
-    display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.8)}
-  .meal-top h3{font-size:14px;font-weight:900;letter-spacing:-.02em}
-  .meal-top p{font-size:11px;color:var(--sub);margin-top:2px;line-height:1.45}
-  .meal-link{
-    display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px;
-    min-height:46px;padding:0 14px;border-radius:15px;text-decoration:none;
-    background:linear-gradient(135deg,#EE7AA9 0%,#CE4A83 100%);color:#fff;font-size:13px;font-weight:900;
-    box-shadow:0 4px 12px rgba(206,74,131,.2);position:relative;z-index:1;
-  }
-  .meal-link span.arw{font-size:15px}
+  /* ============ weather ============ */
   .note-label{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;font-size:10.5px;font-weight:900;color:#B090A0}
   .note-input{
     width:100%;margin-top:5px;border:1px dashed #F4C9DE;border-radius:14px;background:#FFF9FC;
@@ -533,10 +514,10 @@
     position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
     width:100%;aspect-ratio:4/3;border-radius:10px;overflow:hidden;
     background:radial-gradient(120% 100% at 50% 0%,#FFF3FA 0%,#F8EEFF 55%,#FFF8F0 100%);
-    border:1px solid #FBE1ED;cursor:pointer;
+    border:1px solid #FBE1ED;
   }
   .pframe-shot img{width:100%;height:100%;object-fit:cover;display:block}
-  .pframe-shot.is-empty{border-style:dashed;border-color:#F5C9DE;padding:10px;text-align:center}
+  .pframe-shot.is-empty{border-style:dashed;border-color:#F5C9DE;padding:10px;text-align:center;cursor:pointer}
   .pframe-shot.is-empty::before{
     content:"";position:absolute;inset:5px;border-radius:8px;border:1px solid rgba(255,255,255,.85);pointer-events:none;
   }
@@ -560,9 +541,53 @@
   .pframe-form[hidden]{display:none}
   .pframe-form .input{height:42px;font-size:14px;border-radius:12px}
   .pframe-form .btn{flex:0 0 auto;padding:0 13px;min-height:42px;border-radius:12px;font-size:12.5px}
-  .pframe-actions{display:flex;gap:6px;margin-top:9px}
+  .pframe-actions{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
   .pframe-actions .btn{flex:1 1 0;min-height:42px;font-size:12px;border-radius:12px;padding:0 8px}
   .pframe-actions .btn[hidden]{display:none}
+
+  /* 사진 여러 장 · 슬라이드쇼 */
+  .pf-stage{position:absolute;inset:0;border-radius:9px;overflow:hidden;background:#FDF1F8}
+  .pf-slide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease;will-change:opacity}
+  .pf-slide.is-on{opacity:1}
+  .pf-slide img{width:100%;height:100%;object-fit:cover;display:block}
+  .pf-ui{position:absolute;inset:0;z-index:3;pointer-events:none}
+  .pf-ui > *{pointer-events:auto}
+  .pf-counter{
+    position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;
+    padding:3px 9px;border-radius:999px;background:rgba(74,42,60,.52);color:#fff;
+    font-size:10.5px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:.02em;
+    -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  }
+  .pf-play{
+    position:absolute;top:8px;left:8px;width:32px;height:32px;padding:0;border-radius:11px;
+    border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.86);color:var(--lilac-deep);
+    font-size:13px;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 8px rgba(120,50,90,.18);
+  }
+  .pf-play[hidden]{display:none}
+  .pf-play:active{transform:scale(.94)}
+  .pf-nav{
+    position:absolute;top:50%;transform:translateY(-50%);
+    width:34px;height:34px;padding:0;border-radius:50%;
+    border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.86);color:#B03A6C;
+    font-size:17px;font-weight:900;line-height:1;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:0 2px 10px rgba(120,50,90,.18);
+  }
+  .pf-nav[hidden]{display:none}
+  .pf-nav:active{transform:translateY(-50%) scale(.92)}
+  .pf-nav.prev{left:7px}
+  .pf-nav.next{right:7px}
+  .pf-dots{
+    position:absolute;left:0;right:0;bottom:8px;display:flex;align-items:center;justify-content:center;
+    gap:4px;flex-wrap:wrap;padding:0 42px;
+  }
+  .pf-dots[hidden]{display:none}
+  .pf-dot{
+    width:6px;height:6px;padding:0;border:0;border-radius:999px;background:rgba(255,255,255,.72);
+    box-shadow:0 0 0 1px rgba(120,50,90,.38), 0 1px 3px rgba(120,50,90,.28);
+    transition:width .22s ease,background .22s ease;
+  }
+  .pf-dot.is-on{width:16px;background:#fff;box-shadow:0 0 0 1.5px rgba(176,58,108,.62), 0 1px 4px rgba(120,50,90,.35)}
 
   /* ============ todo & memo ============ */
   .todo-card{padding:6px 12px 12px}
@@ -608,9 +633,6 @@
   .color-pick button[data-c="lilac"]{background:linear-gradient(170deg,#F6F0FF,#EFE9F9)}
   .color-pick button.is-on{border-color:var(--lilac);box-shadow:0 0 0 3px rgba(206,74,131,.14)}
   .color-pick .btn{margin-left:auto;flex:0 0 auto}
-
-  /* ============ 요정 스티커 (태블릿 전용 장식) ============ */
-  .sticker{display:none}
 
   /* ============ footer ============ */
   .foot{margin:26px 2px 6px;text-align:center;font-size:10.5px;line-height:1.6;color:var(--mute);position:relative}
@@ -777,7 +799,7 @@
     .banner button{min-height:32px;padding:0 10px;font-size:10px;border-radius:9px}
 
     /* 가족 카드 3열 */
-    .member-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+    .member-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
     .mcard{padding:13px 13px 11px;border-radius:20px}
     .mcard-top{gap:9px}
     .avatar-btn,.avatar{width:52px;height:52px}
@@ -795,49 +817,54 @@
     .section{margin-top:0}
     .dash{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:stretch}
     .dash > *{order:0}
-    #secFamily{grid-column:1 / -1;margin-bottom:16px}
-    .col{display:flex;flex-direction:column;gap:20px;min-width:0}
+    #secFamily{grid-column:1 / -1;margin-bottom:14px}
+    .col{display:flex;flex-direction:column;gap:14px;min-width:0}
 
-    .sticker{
-      display:flex;align-items:center;gap:10px;margin-top:auto;
-      padding:11px 13px;border-radius:18px;
-      background:linear-gradient(135deg,#FFF0F8 0%,#FBF1FF 100%);
-      border:1px dashed #F6CFE2;box-shadow:0 4px 16px rgba(206,74,131,.08);
-    }
-    .sticker .sticker-fairy{flex:0 0 auto;width:44px;height:44px}
-    .sticker p{font-size:11px;line-height:1.45;color:#8F6780;font-weight:700}
-    .sticker b{display:block;font-size:12px;color:var(--lilac-deep);font-weight:900;letter-spacing:-.02em}
-    .sticker .hearts{display:flex;gap:3px;margin-top:3px}
-    .sticker .hearts svg{width:9px;height:9px;opacity:.8}
-    #secMeal{margin-top:4px}
+    /* Row 2 세 칸이 같은 높이로 끝나도록: 일정 · 할 일/메모는 남는 높이를 채워요 */
+    #secEvents{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+    #eventList{flex:1 1 auto}
+    #secTodo{display:flex;flex-direction:column;min-height:0}
+    #secTodo .todo-card{flex:1 1 auto;display:flex;flex-direction:column}
+    #secTodo .todo-list{flex:1 1 auto}
+    #secMemo{display:flex;flex-direction:column;min-height:0}
+    #secMemo .memo-board{flex:1 1 auto;align-content:start}
+
+    /* 2번째 줄: 일정 · 할 일/메모 · 사진 액자 */
+    #secPhoto{display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+    #secPhoto .pframe-card{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+    #secPhoto .pframe{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+    #secPhoto .pframe-mat{flex:1 1 auto;display:flex;min-height:0}
+    #secPhoto .pframe-shot{flex:1 1 auto;aspect-ratio:auto;height:auto;min-height:148px}
+    #secPhoto .pframe-cap-row{margin-top:8px}
+    #secPhoto .pframe-actions{margin-top:8px}
+    #secPhoto .pframe-actions .btn{min-height:38px}
     .section-title{margin-bottom:8px}
     .section-title h2{font-size:13.5px}
     .section-title .right{font-size:10px}
 
-    .dday-card{padding:13px 13px 12px;border-radius:16px}
-    .dday-card .tt{font-size:12px;min-height:32px}
-    .dday-card .dd{font-size:23px;margin-top:6px;padding:3px 11px}
-    .ev{padding:9px 8px 9px 11px;border-radius:14px}
+    .dday-card{padding:12px 12px 11px;border-radius:16px}
+    .dday-card .tt{font-size:12px;min-height:30px}
+    .dday-card .dd{font-size:23px;margin-top:5px;padding:3px 11px}
+    .ev{padding:8px 8px 8px 10px;border-radius:14px}
     .ev .ic{width:33px;height:33px;border-radius:10px;font-size:16px}
     .ev-title{font-size:12.5px}
     .add-ghost{margin-top:8px}
 
-    .todo-card{padding:5px 11px 11px}
+    .todo-card{padding:4px 10px 10px}
+    .todo{min-height:38px}
     .todo-text{font-size:12.5px}
     .memo-board{gap:8px}
-    .memo{min-height:70px;padding:10px}
+    .memo{min-height:60px;padding:9px}
     .memo .mt{font-size:11.5px}
-    .memo-add{margin-top:8px;padding:10px}
+    .memo-add{margin-top:8px;padding:9px}
 
     .wcard{padding:13px}
-    .meal-card{padding:13px}
     .wday{padding:4px 2px;font-size:12px}
     .wday .d{flex-basis:70px;font-size:11px}
     .wday .t{flex-basis:70px}
     .wtemp{font-size:30px}
     .wair{margin-top:8px;padding:7px 10px;font-size:11px}
     .wdays{margin-top:8px}
-    .meal-top{padding:0}
     .note-input{min-height:50px}
     .foot{margin:22px 2px 4px}
 
@@ -1041,13 +1068,6 @@
       </form>
       <button type="button" class="add-ghost" id="btnAddEvent" style="margin-top:10px">＋ 가족 일정 추가</button>
     </section>
-
-      <aside class="sticker" aria-hidden="true">
-        <span class="sticker-fairy"><svg class="fairy" viewBox="0 0 120 120"><use href="#hachuFairy"/></svg></span>
-        <p><b>오늘도 반짝반짝</b>하츄핑처럼 가족의 하루를 모아요
-          <span class="hearts"><svg viewBox="0 0 24 24"><use href="#hachuHeart"/></svg><svg viewBox="0 0 24 24"><use href="#hachuHeart"/></svg><svg viewBox="0 0 24 24"><use href="#hachuHeart"/></svg></span>
-        </p>
-      </aside>
     </div>
 
     <div class="col">
@@ -1096,28 +1116,6 @@
         <span class="right" id="photoFrameMeta">한 장 걸어 두세요</span>
       </div>
       <div class="card pframe-card" id="photoFrameCard"></div>
-    </section>
-
-    <!-- 식단 -->
-    <section class="section" id="secMeal">
-      <div class="section-title">
-        <h2>🍽️ 이번 주 식단 &amp; 장보기</h2>
-        <span class="right">담으면 재료까지</span>
-      </div>
-      <div class="card meal-card">
-        <div class="meal-top">
-          <div class="meal-ic" aria-hidden="true">🥗</div>
-          <div>
-            <h3>우리 집 저녁 메뉴 · 컬리 장보기</h3>
-            <p>이번 주 메뉴를 담으면 필요한 재료와 장보기 목록이 한 번에 정리돼요.</p>
-          </div>
-        </div>
-        <a class="meal-link" id="mealLink" href="https://dongtthung.github.io/Weekly-meal-kurly/" target="_blank" rel="noopener noreferrer">
-          <span>식단 앱 열기</span><span class="arw" aria-hidden="true">↗</span>
-        </a>
-        <div class="note-label"><span>이번 주 메모</span><span>눌러서 고쳐 쓰세요</span></div>
-        <textarea class="note-input" id="mealNote" aria-label="이번 주 식단 메모" placeholder="예: 수요일은 간단히 김치볶음밥"></textarea>
-      </div>
     </section>
     </div>
   </main>
@@ -1254,7 +1252,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 
     <div class="box">
       <h4>🔒 사진과 개인정보</h4>
-      <p>올린 사진은 폰 안에서 먼저 줄여 저장해요 — 프로필 256×256, 위치 아이콘 128×128, 가족 사진 액자 최대 960px(WebP). 공개 주소의 페이지 코드에는 사진·일정·위치가 들어가지 않고, 기기 저장소(또는 로그인한 Supabase)에만 남아요.</p>
+      <p>올린 사진은 폰 안에서 먼저 줄여 저장해요 — 프로필 256×256, 위치 아이콘 128×128, 가족 사진 액자는 한 장당 최대 800px(WebP 0.80, 최대 12장). 공개 주소의 페이지 코드에는 사진·일정·위치가 들어가지 않고, 기기 저장소(또는 로그인한 Supabase)에만 남아요.</p>
     </div>
 
     <div class="sheet-actions">
@@ -1266,7 +1264,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <input type="file" id="photoInput" accept="image/*" aria-label="프로필 사진 선택" hidden>
 <input type="file" id="locIconInput" accept="image/*" aria-label="위치 아이콘 사진 선택" hidden>
-<input type="file" id="frameInput" accept="image/*" aria-label="가족 사진 선택" hidden>
+<input type="file" id="frameInput" accept="image/*" multiple aria-label="가족 사진 선택 (여러 장 가능)" hidden>
 
 <!-- ================= 일주일 날씨 모달 ================= -->
 <div class="overlay" id="weatherSheet" hidden>
@@ -1308,7 +1306,10 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      ===================================================================== */
   const PRESETS = ['🏢 회사', '🏠 집', '🏫 어린이집', '🚗 외출', '🏥 병원', '✈️ 여행'];
   const LOC_ICON_SIZE = 128;      // 위치 아이콘 사진 (128×128 WebP)
-  const FRAME_MAX = 960;          // 가족 사진 액자 (최대 960px WebP)
+  const FRAME_MAX = 800;          // 가족 사진 액자 — 한 장 최대 800px
+  const FRAME_QUALITY = 0.80;     // WebP 0.80 (안 되면 JPEG 0.80)
+  const FRAME_MAX_PHOTOS = 12;    // 액자에 걸 수 있는 사진 수
+  const FRAME_INTERVAL = 6000;    // 슬라이드쇼 넘김 간격 (6초)
   const DEFAULT_CAPTION = '우리 가족 행복하게 🌸';
 
   /* '🏢 회사' → 이모지 / 이름 */
@@ -1380,8 +1381,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         { id: 'mm-trip', text: '경주 11/21~22\n잎새달스므날 · 테라로사 도보 5분', color: 'lilac', at: 0 },
         { id: 'mm-bday', text: '딸 12/7 만 3세\n케이크는 영광읍에서 픽업', color: 'pink', at: 0 }
       ],
-      meal: { note: '이번 주는 13개 메뉴 중 골라 담아 보세요. 장보기 목록까지 같이 정리돼요.' },
-      photoFrame: { photo: '', caption: DEFAULT_CAPTION },
+      photoFrame: { photos: [], caption: DEFAULT_CAPTION },
       weather: {
         checkedAt: '2026-11-17T12:54:00+09:00',
         temp: '14°',
@@ -1446,7 +1446,6 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       events: Array.isArray(raw.events) ? raw.events : d.events,
       todos: Array.isArray(raw.todos) ? raw.todos : d.todos,
       memos: Array.isArray(raw.memos) ? raw.memos : d.memos,
-      meal: Object.assign({}, d.meal, raw.meal || {}),
       weather: Object.assign({}, d.weather, raw.weather || {}),
       photoFrame: normalizePhotoFrame(raw.photoFrame)
     };
@@ -1469,11 +1468,26 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     if (!out.weather.days || !Array.isArray(out.weather.days)) out.weather.days = d.weather.days;
     return out;
   }
+  /* 가족 사진 액자 — 여러 장(최대 12) + 예전 한 장 저장값(photo) 자동 이전 */
   function normalizePhotoFrame(raw) {
-    const d = { photo: '', caption: DEFAULT_CAPTION };
+    const d = { photos: [], caption: DEFAULT_CAPTION };
     if (!raw || typeof raw !== 'object') return d;
+    const isData = function (v) { return typeof v === 'string' && v.indexOf('data:image/') === 0; };
+    const list = [];
+    if (Array.isArray(raw.photos)) {
+      raw.photos.forEach(function (p) {
+        if (isData(p)) list.push({ src: p, caption: '' });
+        else if (p && isData(p.src)) list.push({ src: p.src, caption: typeof p.caption === 'string' ? p.caption.slice(0, 60) : '' });
+      });
+    }
+    /* 예전 버전: photoFrame.photo 한 장 → photos 배열로 이전 */
+    if (!list.length && isData(raw.photo)) list.push({ src: raw.photo, caption: '' });
+
+    const photos = list.slice(0, FRAME_MAX_PHOTOS).map(function (p) {
+      return { id: uid('ph'), src: p.src, caption: p.caption || '' };
+    });
     return {
-      photo: typeof raw.photo === 'string' && raw.photo.indexOf('data:image/') === 0 ? raw.photo : '',
+      photos: photos,
       caption: typeof raw.caption === 'string' ? raw.caption.slice(0, 60) : d.caption
     };
   }
@@ -1487,10 +1501,16 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     };
   }
 
+  let frameMigrated = false;   /* 예전 한 장 저장값을 여러 장으로 옮겼는지 */
   function loadState() {
     try {
       const raw = localStorage.getItem(LS_STATE);
-      if (raw) return normalizeState(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const pf = parsed && parsed.photoFrame;
+        frameMigrated = !!(pf && pf.photo && !(Array.isArray(pf.photos) && pf.photos.length));
+        return normalizeState(parsed);
+      }
     } catch (e) { /* 깨진 저장값은 기본값으로 */ }
     return defaultState();
   }
@@ -1653,7 +1673,6 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     renderNowStrip();
     renderMembers();
     renderEvents();
-    renderMeal();
     renderPhotoFrame();
     renderWeather();
     renderTodos();
@@ -1862,11 +1881,6 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     }).join('') || '<li class="ev"><div class="ev-body"><div class="ev-note">가족 일정을 추가해 보세요.</div></div></li>';
   }
 
-  function renderMeal() {
-    const note = $('#mealNote');
-    if (document.activeElement !== note) note.value = state.meal.note || '';
-  }
-
   function renderWeather() {
     renderHeadWeather();
     const w = state.weather;
@@ -1924,25 +1938,62 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   }
 
   /* =====================================================================
-     우리 가족 사진 액자
+     우리 가족 사진 액자 · 슬라이드쇼
      ===================================================================== */
+  let frameIdx = 0;
+  let framePlaying = true;
+  let frameTimer = null;
+
+  function framePhotos() {
+    return (state.photoFrame && Array.isArray(state.photoFrame.photos)) ? state.photoFrame.photos : [];
+  }
+  function clampFrameIdx() {
+    const n = framePhotos().length;
+    if (!n) { frameIdx = 0; return 0; }
+    if (frameIdx >= n) frameIdx = 0;
+    if (frameIdx < 0) frameIdx = n - 1;
+    return frameIdx;
+  }
+  function frameMetaText(n) {
+    if (!n) return '사진을 걸어 두세요';
+    if (n === 1) return '1장 걸려 있어요';
+    return n + '장 · ' + (framePlaying ? '6초마다 넘어가요' : '멈춤');
+  }
+
   function renderPhotoFrame() {
     const box = $('#photoFrameCard');
     if (!box) return;
-    const pf = state.photoFrame || { photo: '', caption: DEFAULT_CAPTION };
+    const pf = state.photoFrame || { photos: [], caption: DEFAULT_CAPTION };
+    const photos = framePhotos();
+    const n = photos.length;
+    clampFrameIdx();
     const cap = String(pf.caption || '').trim();
-    const has = !!pf.photo;
     const meta = $('#photoFrameMeta');
-    if (meta) meta.textContent = has ? '사진을 눌러 바꿔요' : '한 장 걸어 두세요';
+    if (meta) meta.textContent = frameMetaText(n);
 
-    const shot = has
-      ? '<div class="pframe-shot" data-action="frame-upload" role="button" tabindex="0" aria-label="가족 사진 바꾸기">' +
-          '<img src="' + esc(pf.photo) + '" alt="우리 가족 사진">' +
+    const multi = n > 1;
+    if (!multi) framePlaying = true;   /* 한 장 이하면 재생 상태로 되돌림 */
+    const shot = n
+      ? '<div class="pframe-shot" aria-roledescription="슬라이드쇼" aria-label="우리 가족 사진 ' + (frameIdx + 1) + ' / ' + n + '">' +
+          '<div class="pf-stage">' + photos.map(function (p, i) {
+            return '<div class="pf-slide' + (i === frameIdx ? ' is-on' : '') + '"><img src="' + esc(p.src) + '" alt="우리 가족 사진 ' + (i + 1) + '" draggable="false"></div>';
+          }).join('') + '</div>' +
+          '<div class="pf-ui">' +
+            '<button type="button" class="pf-play" id="pfPlay" data-action="frame-play" aria-label="' + (framePlaying ? '슬라이드쇼 멈추기' : '슬라이드쇼 재생') + '"' + (multi ? '' : ' hidden') + '>' + (framePlaying ? '⏸' : '▶') + '</button>' +
+            '<span class="pf-counter" id="pfCounter">' + (frameIdx + 1) + ' / ' + n + '</span>' +
+            '<button type="button" class="pf-nav prev" data-action="frame-prev" aria-label="이전 사진"' + (multi ? '' : ' hidden') + '>‹</button>' +
+            '<button type="button" class="pf-nav next" data-action="frame-next" aria-label="다음 사진"' + (multi ? '' : ' hidden') + '>›</button>' +
+            '<div class="pf-dots" id="pfDots" role="group" aria-label="사진 선택"' + (multi ? '' : ' hidden') + '>' +
+              photos.map(function (p, i) {
+                return '<button type="button" class="pf-dot' + (i === frameIdx ? ' is-on' : '') + '" data-action="frame-go" data-i="' + i + '" aria-label="' + (i + 1) + '번째 사진" aria-pressed="' + (i === frameIdx) + '"></button>';
+              }).join('') +
+            '</div>' +
+          '</div>' +
         '</div>'
       : '<div class="pframe-shot is-empty" data-action="frame-upload" role="button" tabindex="0" aria-label="가족 사진 올리기">' +
           '<span class="pf-fairy" aria-hidden="true"><svg class="fairy" viewBox="0 0 120 120"><use href="#hachuFairy"/></svg></span>' +
-          '<strong>우리 가족 사진 한 장</strong>' +
-          '<span class="pf-sub">여기 걸어 두면 볼 때마다 따뜻해져요</span>' +
+          '<strong>우리 가족 사진 걸어 두기</strong>' +
+          '<span class="pf-sub">여러 장을 한 번에 고를 수 있어요 · 6초마다 넘어가요</span>' +
           '<span class="pf-emoji" aria-hidden="true">🖼️</span>' +
         '</div>';
 
@@ -1957,11 +2008,54 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         '<button class="btn" type="submit">저장</button>' +
       '</form>' +
       '<div class="pframe-actions">' +
-        '<button type="button" class="btn' + (has ? ' ghost' : '') + '" data-action="frame-upload">📷 ' + (has ? '사진 바꾸기' : '가족 사진 올리기') + '</button>' +
-        '<button type="button" class="btn ghost" data-action="frame-clear"' + (has ? '' : ' hidden') + '>지우기</button>' +
+        '<button type="button" class="btn' + (n ? ' ghost' : '') + '" data-action="frame-upload">＋ 사진 추가</button>' +
+        '<button type="button" class="btn ghost" data-action="frame-remove"' + (n ? '' : ' hidden') + '>현재 사진 빼기</button>' +
+        '<button type="button" class="btn ghost" data-action="frame-clear"' + (multi ? '' : ' hidden') + '>모두 지우기</button>' +
       '</div>' +
     '</div>';
+
+    syncFrameTimer();
   }
+
+  /* 사진 넘기기 — 새로 그리지 않고 클래스만 바꿔 부드럽게 페이드 */
+  function setFrameIndex(i) {
+    const n = framePhotos().length;
+    if (!n) return;
+    frameIdx = ((i % n) + n) % n;
+    const box = $('#photoFrameCard');
+    if (!box) return;
+    const slides = $$('.pf-slide', box);
+    slides.forEach(function (el, k) { el.classList.toggle('is-on', k === frameIdx); });
+    const counter = $('#pfCounter', box);
+    if (counter) counter.textContent = (frameIdx + 1) + ' / ' + n;
+    const shot = $('.pframe-shot', box);
+    if (shot) shot.setAttribute('aria-label', '우리 가족 사진 ' + (frameIdx + 1) + ' / ' + n);
+    $$('.pf-dot', box).forEach(function (d, k) {
+      d.classList.toggle('is-on', k === frameIdx);
+      d.setAttribute('aria-pressed', k === frameIdx ? 'true' : 'false');
+    });
+  }
+
+  /* 자동 넘김 타이머 — 2장 이상이고 재생 중일 때만 */
+  function syncFrameTimer() {
+    if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
+    if (framePhotos().length < 2 || !framePlaying) return;
+    frameTimer = setInterval(function () { setFrameIndex(frameIdx + 1); }, FRAME_INTERVAL);
+    if (frameTimer && frameTimer.unref) frameTimer.unref();
+  }
+
+  function toggleFramePlay() {
+    framePlaying = !framePlaying;
+    const btn = $('#pfPlay');
+    if (btn) {
+      btn.textContent = framePlaying ? '⏸' : '▶';
+      btn.setAttribute('aria-label', framePlaying ? '슬라이드쇼 멈추기' : '슬라이드쇼 재생');
+    }
+    const meta = $('#photoFrameMeta');
+    if (meta) meta.textContent = frameMetaText(framePhotos().length);
+    syncFrameTimer();
+  }
+
 
   function renderTodos() {
     const list = state.todos;
@@ -2084,7 +2178,30 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
         return;
       }
       if (a === 'frame-clear') {
-        clearFramePhoto();
+        clearFramePhotos();
+        return;
+      }
+      if (a === 'frame-remove') {
+        removeFramePhoto();
+        return;
+      }
+      if (a === 'frame-prev') {
+        setFrameIndex(frameIdx - 1);
+        syncFrameTimer();
+        return;
+      }
+      if (a === 'frame-next') {
+        setFrameIndex(frameIdx + 1);
+        syncFrameTimer();
+        return;
+      }
+      if (a === 'frame-go') {
+        setFrameIndex(Number(t.getAttribute('data-i')) || 0);
+        syncFrameTimer();
+        return;
+      }
+      if (a === 'frame-play') {
+        toggleFramePlay();
         return;
       }
       if (a === 'frame-cap-edit') {
@@ -2295,11 +2412,12 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     });
   }
 
-  /* 캔버스 → WebP 0.82 (안 되면 JPEG) */
-  function encodeCanvas(cv) {
+  /* 캔버스 → WebP (기본 0.82, 안 되면 JPEG) */
+  function encodeCanvas(cv, quality) {
+    const q = typeof quality === 'number' ? quality : 0.82;
     let out = '';
-    try { out = cv.toDataURL('image/webp', 0.82); } catch (e) { out = ''; }
-    if (!out || out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/jpeg', 0.82);
+    try { out = cv.toDataURL('image/webp', q); } catch (e) { out = ''; }
+    if (!out || out.indexOf('data:image/webp') !== 0) out = cv.toDataURL('image/jpeg', q);
     return out;
   }
 
@@ -2317,15 +2435,15 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     return encodeCanvas(canvas);
   }
 
-  /* 비율 유지 축소 — 가족 사진 액자 (최대 960px) */
-  function fitData(img, maxW, maxH) {
+  /* 비율 유지 축소 — 가족 사진 액자 (최대 800px · 0.80) */
+  function fitData(img, maxW, maxH, quality) {
     const canvas = document.createElement('canvas');
     const scale = Math.min(1, maxW / img.width, maxH / img.height);
     const w = Math.max(1, Math.round(img.width * scale));
     const h = Math.max(1, Math.round(img.height * scale));
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    return encodeCanvas(canvas);
+    return encodeCanvas(canvas, quality);
   }
 
   function handlePhoto(file, memberId) {
@@ -2401,31 +2519,83 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     input.click();
   }
   $('#frameInput').addEventListener('change', function (e) {
-    const file = e.target.files && e.target.files[0];
+    const files = Array.prototype.slice.call(e.target.files || []);
     e.target.value = '';
-    if (!file) return;
-    if (!file.type || file.type.indexOf('image/') !== 0) {
-      toast('사진 파일만 넣을 수 있어요');
-      return;
-    }
-    fileToImage(file).then(function (img) {
-      const data = fitData(img, FRAME_MAX, FRAME_MAX);
-      state.photoFrame.photo = data;
-      commit(); renderPhotoFrame();
-      toast('가족 사진을 걸었어요 · ' + Math.round(data.length / 1024) + 'KB');
-    }).catch(function () {
-      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
-    });
+    addFramePhotos(files);
   });
 
-  function clearFramePhoto() {
-    if (!state.photoFrame || !state.photoFrame.photo) return;
-    const prev = state.photoFrame.photo;
-    state.photoFrame.photo = '';
+  /* 고른 사진들을 한 장씩 800px · WebP 0.80으로 줄여 액자에 건다 */
+  function addFramePhotos(files) {
+    if (!files || !files.length) return;
+    if (!state.photoFrame || !Array.isArray(state.photoFrame.photos)) {
+      state.photoFrame = { photos: [], caption: DEFAULT_CAPTION };
+    }
+    const pf = state.photoFrame;
+    const room = FRAME_MAX_PHOTOS - pf.photos.length;
+    if (room <= 0) {
+      toast('사진은 최대 ' + FRAME_MAX_PHOTOS + '장까지 걸 수 있어요');
+      return;
+    }
+    const take = files.slice(0, room);
+    const before = pf.photos.length;
+    let added = 0, failed = 0, bytes = 0;
+
+    take.reduce(function (chain, file) {
+      return chain.then(function () {
+        if (!file.type || file.type.indexOf('image/') !== 0) { failed++; return; }
+        return fileToImage(file).then(function (img) {
+          const data = fitData(img, FRAME_MAX, FRAME_MAX, FRAME_QUALITY);
+          pf.photos.push({ id: uid('ph'), src: data, caption: '' });
+          added++;
+          bytes += data.length;
+        }).catch(function () { failed++; });
+      });
+    }, Promise.resolve()).then(function () {
+      if (!added) {
+        toast(failed ? '사진을 넣지 못했어요. 다른 사진으로 해보세요' : '사진 파일만 넣을 수 있어요');
+        return;
+      }
+      frameIdx = before;   /* 새로 넣은 첫 사진부터 보여 주기 */
+      commit(); renderPhotoFrame();
+      toast(added + '장을 걸었어요 · ' + Math.round(bytes / 1024) + 'KB'
+        + (files.length > room ? ' · 최대 ' + FRAME_MAX_PHOTOS + '장' : '')
+        + (failed ? ' · ' + failed + '장은 못 넣었어요' : ''));
+    });
+  }
+
+  /* 지금 보고 있는 사진만 빼기 */
+  function removeFramePhoto() {
+    const photos = framePhotos();
+    if (!photos.length) return;
+    const i = clampFrameIdx();
+    const removed = photos.splice(i, 1)[0];
+    if (frameIdx >= photos.length) frameIdx = 0;
     commit(); renderPhotoFrame();
-    toast('사진을 액자에서 내렸어요', {
+    toast('사진을 액자에서 뺐어요', {
       label: '되돌리기',
-      onClick: function () { state.photoFrame.photo = prev; commit(); renderPhotoFrame(); }
+      onClick: function () {
+        const list = framePhotos();
+        list.splice(Math.min(i, list.length), 0, removed);
+        frameIdx = i;
+        commit(); renderPhotoFrame();
+      }
+    });
+  }
+
+  /* 모든 사진 내리기 */
+  function clearFramePhotos() {
+    const prev = framePhotos().slice();
+    if (!prev.length) return;
+    state.photoFrame.photos = [];
+    frameIdx = 0;
+    commit(); renderPhotoFrame();
+    toast(prev.length + '장을 모두 내렸어요', {
+      label: '되돌리기',
+      onClick: function () {
+        state.photoFrame.photos = prev;
+        frameIdx = 0;
+        commit(); renderPhotoFrame();
+      }
     });
   }
 
@@ -2576,12 +2746,6 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     input.value = '';
     commit(); renderMemos();
     toast('메모를 붙였어요');
-  });
-
-  $('#mealNote').addEventListener('change', function () {
-    state.meal.note = $('#mealNote').value;
-    commit();
-    toast('식단 메모를 저장했어요');
   });
 
   /* =====================================================================
@@ -2970,6 +3134,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      ===================================================================== */
   function boot() {
     state = loadState();
+    if (frameMigrated) saveLocal();   /* 옛 사진 액자 → 새 여러 장 형식으로 이 기기에 저장 */
     renderAll();
     setSaveHint();
     initCloud();
@@ -2986,6 +3151,10 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     }
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') refreshIfNeeded();
+    });
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') syncFrameTimer();
+      else if (frameTimer) { clearInterval(frameTimer); frameTimer = null; }
     });
     setInterval(refreshIfNeeded, 60000);
     setInterval(renderClock, 10000);
