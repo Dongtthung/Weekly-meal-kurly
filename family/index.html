@@ -2592,6 +2592,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
      ===================================================================== */
   let photoTarget = null;
   function openPhotoPicker(memberId) {
+    if (!memberId) return;
     photoTarget = memberId;
     const input = $('#photoInput');
     input.value = '';
@@ -2611,7 +2612,73 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     });
   }
 
-  function fileToImage(file) {
+  /* ---- 사진 파일 판별 · 디코딩 (휴대폰 갤러리 대응) ----------------------
+     안드로이드 갤러리·파일 앱·구글 포토는 file.type 을 빈 문자열('')이나
+     application/octet-stream 으로 넘겨 주는 일이 잦다. 타입만 보고 거르면
+     멀쩡한 사진이 '사진 파일만 넣을 수 있어요'로 막히므로, 타입이 비어 있으면
+     확장자를 보고(확장자도 없으면 일단 디코딩을 시도) 판단한다. */
+  const MSG_NOT_IMAGE = '사진 파일만 넣을 수 있어요';
+  const MSG_DECODE_FAIL = '이 사진은 열 수 없어요. 다른 사진으로 해보세요';
+  const MSG_HEIC = '고효율 사진(HEIC) 형식은 바로 열 수 없어요. 갤러리에서 스크린샷이나 JPG로 저장해 올려 보세요';
+  const IMG_EXT_RE = /\.(jpe?g|png|webp|gif|bmp|avif|heic|heif|jfif)$/i;
+
+  function fileMime(file) {
+    return String((file && file.type) || '').toLowerCase().split(';')[0].replace(/^\s+|\s+$/g, '');
+  }
+  function fileNameOf(file) {
+    return String((file && file.name) || '');
+  }
+  function isHeicFile(file) {
+    const t = fileMime(file);
+    const n = fileNameOf(file).toLowerCase();
+    return t.indexOf('heic') >= 0 || t.indexOf('heif') >= 0 || /\.(heic|heif)$/i.test(n);
+  }
+  /* 사진으로 받아들일 만한 파일인가 — 명백한 비이미지(txt·pdf·zip·동영상)일 때만 false */
+  function isLikelyImageFile(file) {
+    if (!file) return false;
+    const t = fileMime(file);
+    if (t.indexOf('image/') === 0) return true;              /* image/jpeg, image/png … */
+    if (t === 'heic' || t === 'heif') return true;           /* 타입만 적힌 경우 */
+    if (t && t !== 'application/octet-stream') return false; /* text/plain, video/*, application/pdf … */
+    const name = fileNameOf(file);
+    if (IMG_EXT_RE.test(name)) return true;                  /* 확장자로 확인 */
+    if (!/\.[^.\/\\]+$/.test(name)) return true;             /* 확장자 없음 → 디코딩으로 판단 */
+    return false;                                            /* .txt .pdf .zip 등 */
+  }
+  /* 디코딩이 끝내 실패했을 때 보여 줄 안내 */
+  function photoErrorText(file) {
+    return isHeicFile(file) ? MSG_HEIC : MSG_DECODE_FAIL;
+  }
+
+  /* 파일 → 그릴 수 있는 이미지. 세 가지 경로를 차례로 시도한다.
+     ① createImageBitmap — 가장 빠르고 메모리 부담이 적으며 EXIF 회전을 자동 보정
+     ② Object URL + <img>  ③ Data URL + <img> (마지막 보루) */
+  function bitmapFromFile(file) {
+    if (typeof window.createImageBitmap !== 'function') return null;
+    const tries = [{ imageOrientation: 'from-image' }, undefined];
+    for (let i = 0; i < tries.length; i++) {
+      try {
+        const p = tries[i] ? window.createImageBitmap(file, tries[i]) : window.createImageBitmap(file);
+        if (p && typeof p.then === 'function') return p;
+      } catch (e) { /* 옵션 미지원 등 → 다음 시도 */ }
+    }
+    return null;
+  }
+  function fileViaObjectUrl(file) {
+    return new Promise(function (resolve, reject) {
+      let url;
+      try { url = URL.createObjectURL(file); } catch (err) { reject(err); return; }
+      const done = function (ok, val) {
+        try { URL.revokeObjectURL(url); } catch (e) {}
+        if (ok) resolve(val); else reject(val);
+      };
+      const img = new Image();
+      img.onload = function () { done(true, img); };
+      img.onerror = function () { done(false, new Error('image load failed')); };
+      img.src = url;
+    });
+  }
+  function fileViaDataUrl(file) {
     return new Promise(function (resolve, reject) {
       const reader = new FileReader();
       reader.onerror = function () { reject(new Error('read failed')); };
@@ -2620,6 +2687,20 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       };
       reader.readAsDataURL(file);
     });
+  }
+  function fileToImage(file) {
+    const bmp = bitmapFromFile(file);
+    const first = bmp
+      ? bmp.then(function (img) { return img; }, function () { return null; })
+      : Promise.resolve(null);
+    return first.then(function (img) {
+      if (img) return img;
+      return fileViaObjectUrl(file).catch(function () { return fileViaDataUrl(file); });
+    });
+  }
+  /* 그린 뒤 bitmap 메모리 해제 */
+  function releaseImage(img) {
+    if (img && typeof img.close === 'function') { try { img.close(); } catch (e) {} }
   }
 
   /* 캔버스 → WebP (기본 0.82, 안 되면 JPEG) */
@@ -2642,7 +2723,9 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, S, S);
     ctx.drawImage(img, Math.round((S - w) / 2), Math.round((S - h) / 2), w, h);
-    return encodeCanvas(canvas);
+    const out = encodeCanvas(canvas);
+    releaseImage(img);
+    return out;
   }
 
   /* 비율 유지 축소 — 가족 사진 액자 (최대 800px · 0.80) */
@@ -2653,14 +2736,16 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     const h = Math.max(1, Math.round(img.height * scale));
     canvas.width = w; canvas.height = h;
     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-    return encodeCanvas(canvas, quality);
+    const out = encodeCanvas(canvas, quality);
+    releaseImage(img);
+    return out;
   }
 
   function handlePhoto(file, memberId) {
     const m = state.family.filter(function (x) { return x.id === memberId; })[0];
     if (!m) return;
-    if (!file.type || file.type.indexOf('image/') !== 0) {
-      toast('사진 파일만 넣을 수 있어요');
+    if (!isLikelyImageFile(file)) {
+      toast(MSG_NOT_IMAGE);
       return;
     }
     fileToImage(file).then(function (img) {
@@ -2669,7 +2754,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       commit(); renderMembers(); renderNowStrip(); renderLocEditor();
       toast('사진을 넣었어요 · ' + Math.round(out.length / 1024) + 'KB');
     }).catch(function () {
-      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
+      toast(photoErrorText(file));
     });
   }
 
@@ -2695,8 +2780,8 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   function applyLocIcon(file, memberId, name) {
     const m = state.family.filter(function (x) { return x.id === memberId; })[0];
     if (!m) return;
-    if (!file.type || file.type.indexOf('image/') !== 0) {
-      toast('사진 파일만 넣을 수 있어요');
+    if (!isLikelyImageFile(file)) {
+      toast(MSG_NOT_IMAGE);
       return;
     }
     fileToImage(file).then(function (img) {
@@ -2707,7 +2792,7 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
       renderMembers(); renderNowStrip(); renderLocEditor();
       toast(name + ' 아이콘 사진을 넣었어요 · ' + Math.round(data.length / 1024) + 'KB');
     }).catch(function () {
-      toast('이 사진은 열 수 없어요. 다른 사진으로 해보세요');
+      toast(photoErrorText(file));
     });
   }
 
@@ -2748,28 +2833,33 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
     }
     const take = files.slice(0, room);
     const before = pf.photos.length;
-    let added = 0, failed = 0, bytes = 0;
+    let added = 0, failed = 0, skipped = 0, heic = false, bytes = 0;
 
     take.reduce(function (chain, file) {
       return chain.then(function () {
-        if (!file.type || file.type.indexOf('image/') !== 0) { failed++; return; }
+        if (!isLikelyImageFile(file)) { skipped++; return; }
         return fileToImage(file).then(function (img) {
           const data = fitData(img, FRAME_MAX, FRAME_MAX, FRAME_QUALITY);
           pf.photos.push({ id: uid('ph'), src: data, caption: '' });
           added++;
           bytes += data.length;
-        }).catch(function () { failed++; });
+        }).catch(function () {
+          failed++;
+          if (isHeicFile(file)) heic = true;
+        });
       });
     }, Promise.resolve()).then(function () {
       if (!added) {
-        toast(failed ? '사진을 넣지 못했어요. 다른 사진으로 해보세요' : '사진 파일만 넣을 수 있어요');
+        if (failed && heic) toast(MSG_HEIC);
+        else if (failed) toast(MSG_DECODE_FAIL);
+        else toast(MSG_NOT_IMAGE);
         return;
       }
       frameIdx = before;   /* 새로 넣은 첫 사진부터 보여 주기 */
       commit(); renderPhotoFrame();
       toast(added + '장을 걸었어요 · ' + Math.round(bytes / 1024) + 'KB'
         + (files.length > room ? ' · 최대 ' + FRAME_MAX_PHOTOS + '장' : '')
-        + (failed ? ' · ' + failed + '장은 못 넣었어요' : ''));
+        + (failed + skipped ? ' · ' + (failed + skipped) + '장은 못 넣었어요' : ''));
     });
   }
 
@@ -2886,7 +2976,15 @@ alter publication supabase_realtime add table public.family_dashboard_state;</pr
   $('#msPhoto').addEventListener('click', function () {
     const id = editingMember;
     closeSheets();
-    setTimeout(function () { openPhotoPicker(id); }, 60);
+    /* setTimeout 으로 미루면 모바일 브라우저·웹뷰가 '사용자 제스처'로 보지 않아
+       파일 선택창을 막는 경우가 있어, 클릭 처리 안에서 바로 연다. */
+    openPhotoPicker(id);
+  });
+  /* 시트의 동그라운 프로필 사진 겉면을 눌러도 사진 선택 */
+  $('#msAvatar').addEventListener('click', function () {
+    const id = editingMember;
+    closeSheets();
+    openPhotoPicker(id);
   });
   $('#msPhotoClear').addEventListener('click', function () {
     const m = state.family.filter(function (x) { return x.id === editingMember; })[0];
