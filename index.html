@@ -142,6 +142,33 @@
   .memolog-btn:active{transform:scale(.98)}
   .memohint{flex:1;min-width:130px;font-size:10.5px;color:#9C95A8;line-height:1.5}
 
+  /* 이번 주 기록 복사 */
+  .recordcopy{
+    display:flex;align-items:center;gap:9px;width:100%;margin-top:8px;
+    font-family:inherit;text-align:left;cursor:pointer;color:#4B3A6A;
+    border:1px solid #D6C9EC;background:linear-gradient(135deg,#F8F3FF 0%,#F0E8FA 100%);
+    border-radius:12px;padding:10px 12px;
+  }
+  .recordcopy:active{transform:scale(.99)}
+  .recordcopy .rc-ico{flex:0 0 auto;font-size:17px;line-height:1}
+  .recordcopy .rc-body{flex:1;min-width:0}
+  .recordcopy .rc-body b{display:block;font-size:12.5px;letter-spacing:-.01em}
+  .recordcopy .rc-body span{display:block;margin-top:2px;font-size:10.5px;font-weight:600;color:#6E5A88;line-height:1.45}
+  .recordcopy .rc-go{flex:0 0 auto;font-size:15px;color:#9B87BE}
+
+  .record-text{
+    width:100%;min-height:220px;max-height:46vh;resize:vertical;display:block;
+    font-family:inherit;font-size:12.5px;line-height:1.6;color:#3C3448;
+    border:1px solid var(--line);border-radius:12px;background:#FCFAF6;padding:11px 12px;
+    white-space:pre-wrap;overflow-wrap:anywhere;
+  }
+  .record-select{
+    width:100%;margin-top:8px;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer;
+    border:1px solid var(--lilac-200);background:var(--lilac-100);color:var(--lilac-deep);
+    border-radius:12px;padding:11px;
+  }
+  .record-select:active{transform:scale(.99)}
+
   /* 날짜별 메모 기록 */
   .memolog{margin-top:9px;border:1px solid var(--line);border-radius:12px;background:#FFFDF8;overflow:hidden}
   .memolog-head{
@@ -568,6 +595,14 @@
         <button class="memolog-btn" type="button" data-action="save-memo-log">📌 메모 기록 남기기</button>
         <span class="memohint" id="memoHint"></span>
       </div>
+      <button class="recordcopy" type="button" data-action="copy-week-record" id="recordCopyBtn">
+        <span class="rc-ico" aria-hidden="true">📤</span>
+        <span class="rc-body">
+          <b>이번 주 기록 복사하기</b>
+          <span id="recordCopySub">이번 주 담은 메뉴·먹음 체크·메모를 한 번에 복사해 용용이에게 보내요</span>
+        </span>
+        <span class="rc-go" aria-hidden="true">›</span>
+      </button>
       <section class="memolog" id="memoLog" aria-label="지난 메모 기록">
         <button class="memolog-head" type="button" id="memoLogHead" data-action="toggle-memolog" aria-expanded="false" aria-controls="memoLogBody">
           <span>📚 지난 메모 기록 (월간 달력)</span>
@@ -599,7 +634,8 @@
       목록에서 <b>+ 담기</b>를 누르면 위 ‘내가 담은 식단’의 선택한 날에 담겨요. 다 먹은 메뉴는 <b>✓</b>로 완료 체크!<br>
       어른용으로는 쌈장·김치·고춧가루만 곁들이면 따로 두 번 요리하지 않아도 돼요.<br>
       담은 메뉴·먹음 체크·메모는 이 휴대폰에만 저장됩니다.<br>
-      메모는 <b>📌 메모 기록 남기기</b>를 누르면 그날의 날짜·메뉴와 함께 <b>지난 메모 기록</b> 달력에 점으로 남아, 다음 주·다음 달이 되어도 골라 볼 수 있어요.
+      메모는 <b>📌 메모 기록 남기기</b>를 누르면 그날의 날짜·메뉴와 함께 <b>지난 메모 기록</b> 달력에 점으로 남아, 다음 주·다음 달이 되어도 골라 볼 수 있어요.<br>
+      <b>📤 이번 주 기록 복사하기</b>를 누르면 이번 주 담은 메뉴·먹음 체크·메모가 한 덩어리 글로 복사돼, 채팅에 붙여넣어 다음 주 식단에 반영해 달라고 할 수 있어요.
       <br>
       <span id="storageWarn" hidden style="color:#B4864F;font-weight:700">이 브라우저는 저장을 막아 두었어요. 화면을 닫으면 담은 메뉴와 체크가 사라지니 크롬·사파리에서 열어 주세요.</span>
       <br>
@@ -681,6 +717,22 @@
   </div>
 </div>
 
+<div class="modal bottom" id="recordModal" role="dialog" aria-modal="true" aria-labelledby="recordTitle">
+  <div class="helper-sheet">
+    <div class="helper-head">
+      <div class="tt">
+        <h2 id="recordTitle">📤 이번 주 기록</h2>
+        <p id="recordSub">아래 글을 길게 눌러 전체 선택한 뒤 복사해 주세요.</p>
+      </div>
+      <button class="x" type="button" data-action="record-close" aria-label="닫기">✕</button>
+    </div>
+    <div class="helper-body">
+      <textarea class="record-text" id="recordText" readonly aria-label="복사할 이번 주 기록"></textarea>
+      <button class="record-select" type="button" data-action="record-select">전체 선택하기</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal bottom" id="helperModal" role="dialog" aria-modal="true" aria-labelledby="helperTitle">
   <div class="helper-sheet">
     <div class="helper-head">
@@ -735,7 +787,7 @@
     {
       key: 'thu', label: '목요일', short: '목',
       items: ['순살 삼치구이', '순두부 계란국', '감자볶음'],
-      tip: '삼치는 순살이라도 잔가시를 한 번 더 확인하고 겉만 노릇하게 구워 속은 촉촉하게. 계란국은 계란을 풀어 부드럽게, 감자볶음은 기름을 적게 해 푹 익혀 주세요.'
+      tip: '삼치는 순살이라도 잔가시를 한 번 더 확인하고 겉만 노릇하게 구워 속은 촉촉하게. 계란국은 계란을 풀어 부드럽게, 감자볶음은 버섯을 잘게 다져 함께 볶고 기름을 적게 해 푹 익혀 주세요.'
     },
     {
       key: 'fri', label: '금요일', short: '금',
@@ -781,7 +833,7 @@
     '미역국': ['miyeok', 'beef'],
     '순살 삼치구이': ['fish'],
     '순두부 계란국': ['sundubu', 'egg', 'leek'],
-    '감자볶음': ['potato', 'onion', 'carrot'],
+    '감자볶음': ['potato', 'onion', 'carrot', 'mushroom'],
     '유부초밥': ['yubu', 'carrot'],
     '어묵우동': ['udon', 'eomuk', 'leek', 'onion']
   };
@@ -940,19 +992,19 @@
       baby: '아기 몫은 계란을 완전히 익혀 부드럽게, 순두부는 숟가락으로 잘게 떠서 건져 주세요. 국물은 조금만 담고 대파는 건져요. 간은 국간장 1작은술로 이미 충분하니 소금은 더 넣지 않아요.'
     },
     '감자볶음': {
-      serve: '어른 2 + 아기 1', time: '약 15분',
+      serve: '어른 2 + 아기 1', time: '약 18분',
       yt: { id: 'cMc1zyMw62E', ch: '김대석 셰프TV', note: '실패 없는 감자채볶음', len: '6:06' },
       ings: [
-        ['감자', '2개(250g)'], ['양파', '1/4개'], ['당근', '2cm'],
+        ['감자', '2개(250g)'], ['느타리버섯', '1줌(80g)'], ['양파', '1/4개'], ['당근', '2cm'],
         ['식용유', '1큰술'], ['소금', '2꼬집'], ['통깨', '약간']
       ],
       steps: [
-        '감자는 0.5cm 채로 썰어 찬물에 5분 담가 전분을 빼고 물기를 닦아요.',
+        '감자는 0.5cm 채로 썰어 찬물에 5분 담가 전분을 빼고 물기를 닦고, 버섯은 밑동을 잘라 0.5cm로 찢어 두요.',
         '팬에 기름 1큰술을 두르고 감자·당근을 중불에서 5분 볶아요.',
-        '양파와 물 2큰술을 넣고 뚜껑을 덮어 3분 더 익혀요.',
+        '버섯과 양파, 물 2큰술을 넣고 뚜껑을 덮어 3분 더 익혀요.',
         '소금 2꼬집으로 간하고 한 김 식힌 뒤 그릇에 담아요.'
       ],
-      baby: '아기 몫은 3단계에서 2분 더 익혀 포크로 으깨지는 정도로 푹 익혀 주세요. 소금은 2꼬집만, 통깨는 빼요. 어른 몫은 먹을 때 통깨·후추를 뿌려요.'
+      baby: '아기 몫은 3단계에서 2분 더 익혀 포크로 으깨지는 정도로 푹 익혀 주세요. 버섯은 잘게 다져 감자와 섞어 주면 잘 먹어요. 소금은 2꼬집만, 통깨는 빼요. 어른 몫은 먹을 때 통깨·후추를 뿌려요.'
     },
     '유부초밥': {
       serve: '어른 2 + 아기 1', time: '약 20분',
@@ -1395,7 +1447,9 @@
   function toast(msg) {
     var t = $('toast');
     t.textContent = msg;
-    t.classList.toggle('top', $('helperModal').classList.contains('show'));
+    var bottomSheet = $('helperModal').classList.contains('show')
+      || (!!$('recordModal') && $('recordModal').classList.contains('show'));
+    t.classList.toggle('top', bottomSheet);
     t.classList.add('show');
     if (toastTimer) window.clearTimeout(toastTimer);
     toastTimer = window.setTimeout(function () { t.classList.remove('show'); }, 2300);
@@ -1781,6 +1835,156 @@
     renderMemoLog();
   }
 
+  /* ---------- 이번 주 기록 복사 (용용이 전달용) ---------- */
+  /* 이번 주 월~금 날짜 */
+  function weekDayList() {
+    var p = weekStartKey().split('-');
+    var base = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    return DAY_KEYS.map(function (k, i) {
+      return { key: k, date: dateKey(new Date(base.getFullYear(), base.getMonth(), base.getDate() + i)) };
+    });
+  }
+
+  function weekRecords() {
+    var days = weekDayList();
+    var from = days[0].date, to = days[days.length - 1].date;
+    return memoLogList().filter(function (r) { return r.date >= from && r.date <= to; });
+  }
+
+  function recentRecords() {
+    var p = dateKey().split('-');
+    var base = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    var from = dateKey(new Date(base.getFullYear(), base.getMonth(), base.getDate() - 6));
+    var to = dateKey(base);
+    return memoLogList().filter(function (r) { return r.date >= from && r.date <= to; });
+  }
+
+  function menuLine(list) {
+    return (list || []).map(function (m) { return m.name + (m.done ? ' ✓' : ''); }).join(', ');
+  }
+
+  function shortDate(ds) { return String(ds || '').slice(5).replace('-', '/'); }
+
+  /* 복사할 텍스트 한 덩어리 만들기 */
+  function buildWeekRecord() {
+    var days = weekDayList();
+    var now = new Date();
+    var lines = ['📋 이번 주 식단·메모 기록 (용용이 전달용)'];
+    lines.push('기간: ' + days[0].date + ' (월) ~ ' + days[days.length - 1].date + ' (금)'
+      + ' · 복사 ' + dateLabel(dateKey(now)) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes()));
+    lines.push('');
+
+    var total = 0, done = 0;
+    var dayLines = [];
+    days.forEach(function (d) {
+      var arr = state.baskets[d.key] || [];
+      total += arr.length;
+      done += arr.filter(function (m) { return m.done; }).length;
+      dayLines.push('· ' + dayInfo(d.key).label + ' ' + shortDate(d.date) + ': '
+        + (arr.length ? menuLine(arr) : '담은 메뉴 없음'));
+    });
+    /* 주말에는 '오늘' 바구니를 쓴다 */
+    var todayArr = state.baskets.today || [];
+    if (!todayKey() && todayArr.length) {
+      total += todayArr.length;
+      done += todayArr.filter(function (m) { return m.done; }).length;
+      dayLines.push('· 오늘 ' + shortDate(dateKey()) + ': ' + menuLine(todayArr));
+    }
+
+    lines.push('[이번 주 담은 식단]');
+    lines = lines.concat(dayLines);
+    lines.push('요약: 담은 메뉴 ' + total + '개 · 먹음 ' + done + '개'
+      + (total > done ? ' · 아직 안 먹음 ' + (total - done) + '개' : ''));
+    lines.push('');
+
+    var notes = [];
+    DAY_KEYS.forEach(function (k) {
+      var memo = String(state.memos[k] || '').trim();
+      if (memo) notes.push('· ' + dayInfo(k).label + ': ' + memo);
+    });
+    var todayMemo = String(state.memos.today || '').trim();
+    if (!todayKey() && todayMemo) notes.push('· 오늘: ' + todayMemo);
+
+    lines.push('[요일 메모]');
+    if (notes.length) lines = lines.concat(notes);
+    else lines.push('· (이번 주에 남긴 요일 메모가 없어요)');
+    lines.push('');
+
+    var recs = weekRecords();
+    var recLabel = '이번 주';
+    if (!recs.length) {
+      var recent = recentRecords();
+      if (recent.length) { recs = recent; recLabel = '최근 7일'; }
+    }
+    recs = recs.slice().sort(function (a, b) {
+      if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+      var aa = a.at || '', bb = b.at || '';
+      if (aa !== bb) return aa < bb ? -1 : 1;
+      return 0;
+    });
+
+    lines.push('[메모 기록 · ' + recLabel + ']');
+    if (!recs.length) {
+      lines.push('· (남긴 메모 기록이 없어요)');
+    } else {
+      recs.forEach(function (r) {
+        var time = timeOf(r.at);
+        var parts = [];
+        if ((r.menus || []).length) parts.push('메뉴: ' + menuLine(r.menus));
+        if (String(r.memo || '').trim()) parts.push('메모: ' + String(r.memo).trim());
+        lines.push('· ' + dateLabel(r.date) + (time ? ' ' + time : '') + ' — ' + parts.join(' / '));
+      });
+    }
+
+    lines.push('');
+    lines.push('용용이, 이번 주 기록이야. 다음 주 식단에 반영해 줘.');
+
+    return {
+      text: lines.join('\n'),
+      empty: total === 0 && notes.length === 0 && recs.length === 0,
+      menus: total,
+      records: recs.length
+    };
+  }
+
+  function updateRecordHint() {
+    var el = $('recordCopySub');
+    if (!el) return;
+    var info = buildWeekRecord();
+    el.textContent = info.empty
+      ? '이번 주 담은 메뉴·먹음 체크·메모를 한 번에 복사해 용용이에게 보내요'
+      : '이번 주 담은 메뉴 ' + info.menus + '개 · 메모 기록 ' + info.records + '건을 한 번에 복사해요';
+  }
+
+  function showRecordFallback(text) {
+    var ta = $('recordText');
+    if (!ta) return;
+    ta.value = text;
+    ta.scrollTop = 0;
+    $('recordModal').classList.add('show');
+  }
+
+  function copyWeekRecord() {
+    var info = buildWeekRecord();
+    var modal = $('recordModal');
+    if (modal) modal.classList.remove('show');
+    writeClipboard(info.text,
+      function () {
+        toast(info.empty
+          ? '이번 주 기록은 아직 비어 있어요 · 그래도 복사했어요'
+          : '복사됐어요! 용용이 채팅창에 그대로 붙여넣어 주세요.');
+      },
+      function () {
+        showRecordFallback(info.text);
+        toast('복사가 막혔어요. 아래 글을 길게 눌러 복사해 주세요');
+      });
+  }
+
+  function closeRecordModal() {
+    var modal = $('recordModal');
+    if (modal) modal.classList.remove('show');
+  }
+
   /* 지난 주에 쓰인 요일 메모는 잃지 않게 그 주 날짜의 기록으로 옮겨 둔다 */
   function archiveStaleMemos() {
     var monday = weekStartKey();
@@ -2000,6 +2204,7 @@
     renderHead();
     renderPills();
     renderBasket();
+    updateRecordHint();
     renderMemoLog();
     renderMenuCats();
     renderMenuList();
@@ -2373,6 +2578,13 @@
       return;
     }
     if (action === 'copy') { copyRemaining(); return; }
+    if (action === 'copy-week-record') { copyWeekRecord(); return; }
+    if (action === 'record-close') { closeRecordModal(); return; }
+    if (action === 'record-select') {
+      var rta = $('recordText');
+      if (rta) { rta.focus(); rta.select(); rta.setSelectionRange(0, rta.value.length); }
+      return;
+    }
     if (action === 'open-helper') { openHelper(); return; }
     if (action === 'helper-close') { $('helperModal').classList.remove('show'); return; }
     if (action === 'helper-copy') { copyForHelper(); return; }
@@ -2413,6 +2625,7 @@
 
   document.addEventListener('keydown', function (ev) {
     if (ev.key === 'Escape') {
+      if ($('recordModal') && $('recordModal').classList.contains('show')) { closeRecordModal(); return; }
       if ($('helperModal').classList.contains('show')) { $('helperModal').classList.remove('show'); return; }
       if ($('modal').classList.contains('show')) { confirmCb = null; $('modal').classList.remove('show'); return; }
     }
@@ -2456,6 +2669,10 @@
 
   $('helperModal').addEventListener('click', function (ev) {
     if (ev.target === $('helperModal')) $('helperModal').classList.remove('show');
+  });
+
+  $('recordModal').addEventListener('click', function (ev) {
+    if (ev.target === $('recordModal')) closeRecordModal();
   });
 
   /* ---------- boot ---------- */
